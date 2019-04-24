@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Значение time (input-type)</title>
+</head>
+<body>
+<h1>Пример с полем ввода времени "type=time"</h1>
+<form action="/examples/php-scripts/time.php" method="get">
+<fieldset> <legend>Введите ваше любимое время рабочего дня</legend>
+<p><input type="time" name="selected_time" list="time-list"></p>
+<datalist id="time-list">
+<option value="09:00" label="Начало рабочего дня">
+<option value="12:00" label="Обед">
+<option value="18:00" label="Конец рабочего дня">
+</datalist>
+</fieldset>
+<p><input type="reset"> <input type="submit"></p>
+</form>
+</body>
+</html>

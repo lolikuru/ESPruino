@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+ <head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/css/device_style.css">
+  <!-- <script type="text/javascript" src="/js/dev_js.js"></script> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Управление устройством</title>
+	 <script>
+	var xmlHttp=createXmlHttpObject();
+	var switch_pos = [0,0,0,0,0,0,0,0];
+	var alarm_on = [0,0,0,0,0,0,0,0];
+	var alarm_off = [0,0,0,0,0,0,0,0];
+	var alarm_state_on = [,,,,,,,];
+	var alarm_state_off = [,,,,,,,];
+	var fadeon = [0,0,0];
+	var bright = [0,0,0];
+	var amount =[0,0,0];
+	var set_real_time;
+		
+	function createXmlHttpObject(){//создание xml
+	 if(window.XMLHttpRequest){
+	  xmlHttp=new XMLHttpRequest();
+	 }else{
+	  xmlHttp=new ActiveXObject('Microsoft.XMLHTTP');
+	 }
+	 return xmlHttp;
+	}
+	function load(){//получение xml и парсинг в json
+	 if(xmlHttp.readyState==0 || xmlHttp.readyState==4){
+	  xmlHttp.open('PUT','/configs.json',true);
+	  xmlHttp.send(null);
+	  xmlHttp.onload = function(e) {
+	   jsonResponse=JSON.parse(xmlHttp.responseText);
+	   loadBlock();
+	  }
+	 }
+	}
+
+	function loadBlock(data2) {//замена значений в html
+		data2 = JSON.parse(xmlHttp.responseText);
+		data = document.getElementsByTagName('body')[0].innerHTML;
+		var new_string;
+		for (var key in data2)
+			{if(typeof data2[key] != 'object' && typeof data2[key] != 'number'){//строки
+			new_string = data.replace(new RegExp('{{'+key+'}}', 'g'), data2[key]);
+			data = new_string;}
+			else {if(typeof data2[key] == 'object'){//если это массивы
+					for(var item in data2[key]){
+							new_string = data.replace(new RegExp('{{'+key+'_'+item+'}}', 'g'), data2[key][item]);
+							data = new_string;
+							}
+						}//и если просто номера
+						if(typeof data2[key] == 'number'){
+						new_string = data.replace(new RegExp('{{'+key+'}}', 'g'), data2[key]);
+							data = new_string;
+						}
+				}
+			}
+			
+		document.getElementsByTagName('body')[0].innerHTML = new_string;
+		handleServerResponse();
+		load_presset();
+		last();
+	}
+
+	function load_presset(){
+	datas = JSON.parse(xmlHttp.responseText);
+	for (var i = 0;i < 8; i++) {
+	switch_pos[i] = datas["pin"+i][1];
+	alarm_on[i] = datas["pin"+i][2];
+	alarm_off[i] = datas["pin"+i][3];
+	alarm_state_on[i] = datas["pin"+i][4];
+	alarm_state_off[i] = datas["pin"+i][5];
+	if(datas["pin"+i][4]=='ON') time_button('',i,'ON');
+	if(datas["pin"+i][5]=='ON') time_button('',i,'OFF');
+	}
+	for (var i = 0;i < 3; i++) {
+	fadeon[i] = datas["fadeon"+i];
+	bright[i] = datas["bright"+i];
+	amount[i] = datas["amount"+i];
+	}
+	}
+
+	function val(id){
+	 var v = document.getElementById(id).value;
+	 return v;
+	}
+	function send_request(submit,server){
+	 request = new XMLHttpRequest();
+	 request.open("GET", server, true);
+	 request.send();
+	 save_status(submit,request);
+	}
+	function save_status(submit,request){
+	 old_submit = submit.value;
+	 request.onreadystatechange = function() {
+	  if (request.readyState != 4) return;
+	  submit.value = request.responseText;
+	  setTimeout(function(){
+	   submit.value=old_submit;
+	   submit_disabled(false);
+	  }, 1000);
+	 }
+	 submit.value = 'Подождите...';
+	 submit_disabled(true);
+	}
+	function submit_disabled(request){
+	 var inputs = document.getElementsByTagName("input");
+	 for (var i = 0; i < inputs.length; i++) {
+	  if (inputs[i].type === 'submit') {inputs[i].disabled = request;}
+	 }
+	}
+	function toggle(target) {//тогл
+	 var curVal = document.getElementById(target).className;
+	 document.getElementById(target).className = (curVal === 'hidden') ? 'show' : 'hidden';
+	}
+
+	function last(){//показ жлементов после загрузки
+	sw_load(document.getElementById("pinload"));
+	var page = document.getElementsByClassName("container")[0];
+	page.setAttribute("style", "display:block;");
+	}	
+	function hideBox(id) {//сокрытие элементов будильника
+	var hb = document.getElementById(id);
+	if (hb.style.display === "none") {
+		hb.style.display = "block";
+	} else {
+		hb.style.display = "none";
+	}
+	}	 
+	
+	function real_time(hours,min,sec) {//отсчет времени
+   sec=Number(sec)+1;
+    if (sec>=60){min=Number(min)+1;sec=0;
+	if(min!=0){
+	auto_alarm(hours,min);//проверка алармов
+	}
+	}
+    if (min>=60){
+	hours=Number(hours)+1;
+	min=0;
+	auto_alarm(hours,min);
+	}
+    if (hours>=24){hours=0};
+    document.getElementById("time").innerHTML = hours+":"+min+":"+sec;
+    set_real_time = setTimeout("real_time("+hours+","+min+","+sec+");", 1000);
+   }
+	function handleServerResponse(){//получение времени
+    clearTimeout(set_real_time);
+    var res = jsonResponse.time.split(":");
+    real_time(hours=res[0],min=res[1],sec=res[2]);
+    document.body.style.backgroundColor="rgb("+jsonResponse.rgb+")";
+   }
+   
+        function load_time(submit){//установка времени
+    server = "/Time";
+    send_request(submit,server);
+    load();
+   }
+	 
+	 function auto_alarm(hour,min){//проверка алармов
+	 if(min < 10) min = "0"+min;
+	 if(hour < 10) hour = "0"+hour;
+	 var time = hour+":"+min;
+	 //console.log(hour+":"+min);
+		for(var n=0; n<8; n++ ){
+		if(alarm_state_on[n] == "ON"&&alarm_on[n] == time) {
+		console.log(time);
+		check(n,1);
+		}
+		if(alarm_state_off[n] == "ON"&&alarm_off[n] == time) {
+		check(n,0);
+		console.log(time);
+		}
+		}
+	 }
+	 
+	function set_pinout(submit,val,sw){//установка положения вывода
+	server = "/pins?pin"+val+"="+sw;
+    send_request(submit,server);
+	switch_pos[val]=sw;
+   }
+	function set_pin_name(submit,num){//установка имени вывода
+	server = "/pins?pin"+num+"="+val('pin'+num);
+    send_request(submit,server);
+   }
+   
+        function set_fadeon(submit,val,sw){//установка параметров + сокрытие элементов при статике
+	server = "/mode?fadeon"+val+"="+sw;
+	var val_1 = val+1;
+	if(sw == 1) { 
+	document.getElementById("pwm_"+val_1).style.display = "block";
+	document.getElementById("pwm_i_"+val_1).style.display = "block";
+	}
+	if(sw == 0) { 
+	document.getElementById("pwm_"+val_1).style.display = "none";
+	document.getElementById("pwm_i_"+val_1).style.display = "none";
+	}
+	
+        send_request(submit,server);
+	fadeon[val]=sw;
+	}
+   
+	function all_off(submit){//выключить всё
+	for (var i = 1; i < 8; i++) {
+	check(i,0)
+	}
+	server = "/pins?pin0=0&pin1=0&pin2=0&pin3=0&pin4=0&pin5=0&pin6=0"
+	send_request(submit,server);
+	}
+
+
+	function check(pin,sw) {//кусок подгрузки параметров on/off
+    if(sw==1){
+	document.getElementById("switch-radio-off-"+pin).checked = true;
+    document.getElementById("switch-radio-on-"+pin).checked = false;
+	}
+	if(sw==0){
+    document.getElementById("switch-radio-off-"+pin).checked = false;
+    document.getElementById("switch-radio-on-"+pin).checked = true;
+	}
+	}
+	function fadecheck(pin,sw){//подгрузка параметров фейда при старте на view
+	if(sw==1){
+	document.getElementById("mode"+pin+"st").checked = false;
+    document.getElementById("mode"+pin+"fa").checked = true;
+	document.getElementById("pwm_"+pin).style.display = "block";
+	document.getElementById("pwm_i_"+pin).style.display = "block";
+	}
+	if(sw==0){
+    document.getElementById("mode"+pin+"st").checked = true;
+    document.getElementById("mode"+pin+"fa").checked = false;
+	document.getElementById("pwm_"+pin).style.display = "none";
+	document.getElementById("pwm_i_"+pin).style.display = "none";
+	}
+	}
+
+	function sw_load(submit){//подгрузка параметров on/off выходов при старте и включение faid
+	for (var i = 1; i < 8; i++) {
+	check(i,switch_pos[i-1]);
+	}
+    server = "/pins?pin0="+switch_pos[0]+"&pin1="+switch_pos[1]+"&pin2="+switch_pos[2]+"&pin3="+switch_pos[3]+"&pin4="+switch_pos[4]+"&pin5="+switch_pos[5]+"&pin6="+switch_pos[6];
+	send_request(submit,server);
+	
+	for (var i = 1; i < 4; i++) {//чтение из памяти
+	fadecheck(i,fadeon[i-1]);
+	}
+    server = "/mode?fadeon0="+fadeon[0]+"&fadeon1="+fadeon[1]+"&fadeon2="+fadeon[2];
+	send_request(submit,server);
+	}
+	
+	function set_settings(submit,param,vect,ch){//установка параметров скорости и задержки
+	var t;
+	if(param==0) {param='bright'; t = bright[ch];}
+	if(param==1) {param='amount'; t = amount[ch];}
+	
+	if((param=='bright'&&t>0&&t<254)||(param=='amount'&&t>0&&t<29))
+	{if(vect==1) t++;}
+	if((param=='bright'&&t<255&&t>1)||(param=='amount'&&t<30&&t>1))	
+	{if(vect==0) t--;}
+	 console.log(param+ch.toString()+'='+t);
+	 server = "/mode?"+param+ch.toString()+"="+t;
+	send_request(submit,server);
+	document.getElementById(param+ch.toString()).innerHTML = t;
+	if(param=='bright') bright[ch]=t;
+	if(param=='amount') amount[ch]=t;
+	}
+	
+	function time_button(submit,pin,state){//alarm set
+	if(state=='OFF'){
+	
+	document.getElementById('time_but_off_'+pin).classList.toggle('btn-default');
+	document.getElementById('time_but_off_'+pin).classList.toggle('btn-danger');
+	
+	document.getElementById("timeoff_"+pin).disabled = !document.getElementById("timeoff_"+pin).disabled;
+	if(submit!=''){
+	if(alarm_state_off[pin]=="OFF"){
+	alarm_state_off[pin] = "ON";
+	alarm_off[pin] = val('timeoff_'+pin);
+	server = "set_alarm?pinout="+pin+"&alarm_state_off=ON&alarm_off="+val('timeoff_'+pin);
+	} else {
+	alarm_state_off[pin] = "OFF";
+	server = "set_alarm?pinout="+pin+"&alarm_state_off=OFF";
+	}
+	send_request(submit,server);
+	}
+	}
+	
+	if(state=='ON'){
+	document.getElementById('time_but_on_'+pin).classList.toggle('btn-default');
+	document.getElementById('time_but_on_'+pin).classList.toggle('btn-success');
+	
+	document.getElementById("timeon_"+pin).disabled = !document.getElementById("timeon_"+pin).disabled;
+	
+	if(submit!=''){
+	if(alarm_state_on[pin]=="OFF"){
+	alarm_state_on[pin] = "ON";
+	alarm_on[pin] = val('timeon_'+pin);
+	server = "set_alarm?pinout="+pin+"&alarm_state_on=ON&alarm_on="+val('timeon_'+pin);
+	} else {
+	alarm_state_on[pin] = "OFF";
+	server = "set_alarm?pinout="+pin+"&alarm_state_on=OFF";
+	}
+	send_request(submit,server);
+	}
+	}
+	}
+   </script>
+</head>
+<body onload="load();">
+  <div class="container" style="display:none;">
+	   <div class="row" style="text-align:center;">
+		<h1 style="margin:50px;">Управление устройством</h1>
+		<h2><span class="label label-info" id="time">{{time}}</span>
+		</h2>
+			<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2" style="
+				padding-left: 0px;
+				padding-right: 0px;">
+				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>	
+				<button class="btn btn-block btn-warning" id="pinload" onclick="sw_load(this);" style="display:none;" type="button">Загрузить...</button>	
+					<ul class="list-group col-6">
+						<li id="devlist" class="list-group-item">
+								<div class="switch" value="true">
+									<input type="radio" name="switch-1" id="switch-radio-off-1"  class="switch-radio switch-radio-off">
+									<label for="switch-radio-off-1" class="switch-label switch-label-off ">
+										<span class="switch-slider" onclick="set_pinout(this,0,1);" type="submit"></span>
+									</label>
+									<input type="radio" checked name="switch-1" id="switch-radio-on-1" class="switch-radio switch-radio-on">
+									<label for="switch-radio-on-1" class="switch-label switch-label-on">
+										Вкл.
+										<span class="switch-slider" onclick="set_pinout(this,0,0);" type="submit"></span>
+									</label>
+								</div> 
+								<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
+									<div class="input-group">
+										<input class="form-control input" id="pin0" value="{{pin0_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,0);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+									</div>									
+								</div>	
+								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
+									<label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode1st" name="optradio" onclick="set_fadeon(this,0,0);"><img src="/css/images/Stabile.png" alt="-">
+									</label>   
+									<label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode1fa" name="optradio" onclick="set_fadeon(this,0,1);"><img src="/css/images/Faid.png" alt="~">
+									</label>
+								</div>
+								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_1" style="padding: 1px 1px;">
+									
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
+									</div>
+								<div class="col-md-2 col-sm-2 col-lg-2" id="pwm_1" style="padding: 1px 1px;">
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt0-" onclick="set_settings(this,0,0,0);" type="button"  style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  
+
+									  <span class="input-group-addon" id="bright0" style="
+											" type="text">{{bright0}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt0+" onclick="set_settings(this,0,1,0);" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+										</span>
+									
+									
+										</div>
+										
+									
+									
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am0-" onclick="set_settings(this,1,0,0)" type="button" style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  
+
+									  <span class="input-group-addon" id="amount0" style="
+											" type="text">{{amount0}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am0+" onclick="set_settings(this,1,1,0)" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+									</span>
+									
+									
+									</div>
+									</div>
+										
+						</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+								<input type="radio" name="switch-2" id="switch-radio-off-2" class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-2" class="switch-label switch-label-off">
+									Выкл.
+									<span class="switch-slider" onclick="set_pinout(this,1,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-2" id="switch-radio-on-2" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-2" class="switch-label switch-label-on">
+									Вкл.
+									<span class="switch-slider" onclick="set_pinout(this,1,0);" type="submit"></span>
+								</label>
+							</div>
+							        <div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
+								<div class="input-group">
+										<input class="form-control input" id="pin1" value="{{pin1_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,1);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+								</div>	
+							</div>
+								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
+									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode2st" name="optradio1" onclick="set_fadeon(this,1,0);"><img src="/css/images/Stabile.png" alt="-">
+									  </label>
+									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode2fa" name="optradio1" onclick="set_fadeon(this,1,1);"><img src="/css/images/Faid.png" alt="~">
+									  </label>
+								</div>
+								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_2" style="padding: 1px 1px;">
+									
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
+									</div>
+							        <div class="col-md-2 col-sm-2 col-lg-2" id="pwm_2" style="padding: 1px 1px;">
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt1-" onclick="set_settings(this,0,0,1)" type="button" style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  
+
+									  <span class="input-group-addon" id="bright1" style="
+											" type="text">{{bright1}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt1+" onclick="set_settings(this,0,1,1)" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+									</span>
+									</div>
+									
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am1-" onclick="set_settings(this,1,0,1)" type="button" style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  
+
+									  <span class="input-group-addon" id="amount1" style="
+											" type="text">{{amount1}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am1+" onclick="set_settings(this,1,1,1)" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+									</span>
+									</div>
+									</div>
+									
+						</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+								<input type="radio" name="switch-3" id="switch-radio-off-3" class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-3" class="switch-label switch-label-off">
+									Выкл.
+									<span class="switch-slider" onclick="set_pinout(this,2,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-3" id="switch-radio-on-3" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-3" class="switch-label switch-label-on">
+									Вкл.
+									<span class="switch-slider" onclick="set_pinout(this,2,0);" type="submit"></span>
+								</label>
+							</div>
+								<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
+										<div class="input-group">
+											<input class="form-control input" id="pin2" value="{{pin2_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button" onclick="set_pin_name(this,2);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+										</span>
+										</div>	
+								</div>
+								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
+									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode3st" name="optradio2" onclick="set_fadeon(this,2,0);"><img src="/css/images/Stabile.png" alt="-">
+									  </label>
+									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
+										<input type="radio" id="mode3fa" name="optradio2" onclick="set_fadeon(this,2,1);"><img src="/css/images/Faid.png" alt="~">
+									  </label>
+								</div>
+								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_3" style="padding: 1px 1px;">
+									
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
+									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
+								</div>
+								<div class="col-md-2 col-sm-2 col-lg-2" id="pwm_3" style="padding: 1px 1px;">
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt2-" onclick="set_settings(this,0,0,2)" type="button" style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  <span class="input-group-addon" id="bright2" style="
+											" type="text">{{bright2}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="bt2+" onclick="set_settings(this,0,1,2)" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+									</span>
+									</div>
+									
+									<div class="input-group col-lg-10 col-xs-1">
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am2-" onclick="set_settings(this,1,0,2)" type="button" style="
+													border: 1px solid #ccc;
+												">-</button>
+									  </span>
+									  
+
+									  <span class="input-group-addon" id="amount2" style="
+											" type="text">{{amount2}}</span>
+									  <span class="input-group-btn">
+										<button class="btn btn-secondary" id="am2+" onclick="set_settings(this,1,1,2)" type="button" style="
+												border: 1px solid #ccc;
+											">+</button>
+									  
+									</span>
+									</div>
+									</div>	
+								</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+								<input type="radio" name="switch-4" id="switch-radio-off-4" class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-4" class="switch-label switch-label-off">
+									Выкл.
+									<span class="switch-slider" onclick="set_pinout(this,3,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-4" id="switch-radio-on-4" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-4" class="switch-label switch-label-on">
+									Вкл.
+									<span class="switch-slider" onclick="set_pinout(this,3,0);" type="submit"></span>
+								</label>
+							</div>
+							<div class="col-md-4 col-sm-4 col-lg-4 row">
+								<div class="input-group">
+										<input class="form-control input" id="pin3" value="{{pin3_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,3);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+								</div>	
+							</div>
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv4')" aria-pressed="false" autocomplete="off" style="">
+									Time On/Off
+								</div>
+								<div id="TimeDateDiv4" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_4" list="time-list" value="{{pin4_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_4" type="submit" onclick="time_button(this,4,'ON')" style="width: 36px;">ON</button>
+											</div>	
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_4" list="time-list" value="{{pin4_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_4" type="submit" onclick="time_button(this,4,'OFF')" style="width: 36px;">OFF</button>
+											</div>	
+										 </div>					
+									</div>
+								</div>
+							</div>
+						</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+									<input type="radio" name="switch-5" id="switch-radio-off-5" class="switch-radio switch-radio-off">
+									<label for="switch-radio-off-5" class="switch-label switch-label-off ">
+										Выкл.
+										<span class="switch-slider" onclick="set_pinout(this,4,1);" type="submit"></span>
+									</label>
+									<input type="radio" checked name="switch-5" id="switch-radio-on-5" class="switch-radio switch-radio-on">
+									<label for="switch-radio-on-5" class="switch-label switch-label-on">
+										Вкл.
+										<span class="switch-slider" onclick="set_pinout(this,4,0);" type="submit"></span>
+									</label>
+								</div>
+							<div class="col-md-4 col-sm-4 col-lg-4 row">
+								<div class="input-group">
+										<input class="form-control input" id="pin4" value="{{pin4_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,4);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+								</div>	
+							</div>
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv5')" aria-pressed="false" autocomplete="off" style="">
+									Time On/Off
+								</div>
+								<div id="TimeDateDiv5" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_5" list="time-list" value="{{pin5_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_5" type="submit" onclick="time_button(this,5,'ON')" style="width: 36px;">ON</button>
+											</div>	
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_5" list="time-list" value="{{pin5_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_5" type="submit" onclick="time_button(this,5,'OFF')" style="width: 36px;">OFF</button>
+											</div>	
+										 </div>				
+									</div>
+								</div>
+							</div>
+						</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+								<input type="radio" name="switch-6" id="switch-radio-off-6" class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-6" class="switch-label switch-label-off">
+									Выкл.
+									<span class="switch-slider" onclick="set_pinout(this,5,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-6" id="switch-radio-on-6" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-6" class="switch-label switch-label-on">
+									Вкл.
+									<<span class="switch-slider" onclick="set_pinout(this,5,0);" type="submit"></span>
+								</label>
+							</div>
+							<div class="col-md-4 col-sm-4 col-lg-4 row">
+								<div class="input-group">
+										<input class="form-control input" id="pin5" value="{{pin5_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,5);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+								</div>	
+							</div>
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv6')" aria-pressed="false" autocomplete="off" style="">
+									Time On/Off
+								</div>
+								<div id="TimeDateDiv6" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_6" list="time-list" value="{{pin6_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_6" type="submit" onclick="time_button(this,6,'ON')" style="width: 36px;">ON</button>
+											</div>	
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_6" list="time-list" value="{{pin6_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_6" type="submit" onclick="time_button(this,6,'OFF')" style="width: 36px;">OFF</button>
+											</div>	
+										 </div>				
+									</div>
+								</div>
+							</div>
+						</li>
+						<li id="devlist" class="list-group-item">
+							<div class="switch">
+								<input type="radio" name="switch-7" id="switch-radio-off-7" class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-7" class="switch-label switch-label-off">
+									Выкл.
+									<span class="switch-slider" onclick="set_pinout(this,6,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-7" id="switch-radio-on-7" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-7" class="switch-label switch-label-on">
+									Вкл.
+									<span class="switch-slider" onclick="set_pinout(this,6,0);" type="submit"></span>
+								</label>
+							</div>
+							
+							<div class="col-md-4 col-sm-4 col-lg-4 row">
+								<div class="input-group">
+										<input class="form-control input" id="pin6" value="{{pin6_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="set_pin_name(this,6);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+									</span>
+								</div>	
+							</div>
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv7')" aria-pressed="false" autocomplete="off" style="">
+									Time On/Off
+								</div>
+								<div id="TimeDateDiv7" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_7" list="time-list" value="{{pin7_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_7" type="submit" onclick="time_button(this,7,'ON')" style="width: 36px;">ON</button>
+											</div>	
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_7" list="time-list" value="{{pin7_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_7" type="submit" onclick="time_button(this,7,'OFF')" style="width: 36px;">OFF</button>
+											</div>	
+										 </div>	
+									</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+				<button class="btn btn-block btn-warning" onclick="all_off(this)" type="button">Выключить все</button>	
+				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>	
+			</div>
+		</div>
+	</div>
+</body>
+<!-- <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script>
+window.onload = function() {
+    alert( 'Документ и все ресурсы загружены' );
+  };
+  </script> -->
+</html>
+
+
