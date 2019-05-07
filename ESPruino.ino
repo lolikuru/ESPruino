@@ -1,9 +1,3 @@
-/*
-   Шаг №8
-   Обнавление прошивки из web интерфейса
-   Получение времени из сети
-
-*/
 #include <ESP8266WiFi.h>        //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step1-wifi
 #include <ESP8266WebServer.h>   //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step2-webserver
 #include <ESP8266SSDP.h>        //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step3-ssdp
@@ -27,8 +21,8 @@ ESP8266WebServer HTTP;
 File fsUploadFile;
 
 // Определяем переменные wifi
-String _ssid     = "Saya"; // Для хранения SSID
-String _password = "markiz18"; // Для хранения пароля сети
+String _ssid     = ""; // Для хранения SSID
+String _password = ""; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
 String SSDP_Name = "Update"; // Имя SSDP
