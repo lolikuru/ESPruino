@@ -239,13 +239,13 @@
 	}
 
 	function sw_load(submit){//подгрузка параметров on/off выходов при старте и включение faid
-	for (var i = 1; i < 8; i++) {
+	for (var i = 1; i < 6; i++) {
 	check(i,switch_pos[i-1]);
 	}
     server = "/pins?pin0="+switch_pos[0]+"&pin1="+switch_pos[1]+"&pin2="+switch_pos[2]+"&pin3="+switch_pos[3]+"&pin4="+switch_pos[4]+"&pin5="+switch_pos[5]+"&pin6="+switch_pos[6];
 	send_request(submit,server);
 	
-	for (var i = 1; i < 4; i++) {//чтение из памяти
+	for (var i = 1; i < 2; i++) {//чтение из памяти
 	fadecheck(i,fadeon[i-1]);
 	}
     server = "/mode?fadeon0="+fadeon[0]+"&fadeon1="+fadeon[1]+"&fadeon2="+fadeon[2];
@@ -629,93 +629,6 @@
 								</div>
 							</div>
 						</li>
-						<li id="devlist" class="list-group-item">
-							<div class="switch">
-								<input type="radio" name="switch-6" id="switch-radio-off-6" class="switch-radio switch-radio-off">
-								<label for="switch-radio-off-6" class="switch-label switch-label-off">
-									Выкл.
-									<span class="switch-slider" onclick="set_pinout(this,5,1);" type="submit"></span>
-								</label>
-								<input type="radio" checked name="switch-6" id="switch-radio-on-6" class="switch-radio switch-radio-on">
-								<label for="switch-radio-on-6" class="switch-label switch-label-on">
-									Вкл.
-									<<span class="switch-slider" onclick="set_pinout(this,5,0);" type="submit"></span>
-								</label>
-							</div>
-							<div class="col-md-4 col-sm-4 col-lg-4 row">
-								<div class="input-group">
-										<input class="form-control input" id="pin5" value="{{pin5_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
-									<span class="input-group-btn">
-										<button class="btn btn-default" type="button" onclick="set_pin_name(this,5);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
-									</span>
-								</div>	
-							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
-								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv6')" aria-pressed="false" autocomplete="off" style="">
-									Time On/Off
-								</div>
-								<div id="TimeDateDiv6" style="display: none;">
-									<div class="text-left" style="width: 115px;">
-										 <div class="input-group">
-											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_6" list="time-list" value="{{pin6_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
-											<div class="input-group-btn">
-												<button class="btn btn-default btn-xs" id="time_but_on_6" type="submit" onclick="time_button(this,6,'ON')" style="width: 36px;">ON</button>
-											</div>	
-										 </div>
-										 <div class="input-group">
-											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_6" list="time-list" value="{{pin6_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
-											<div class="input-group-btn">
-												<button class="btn btn-default btn-xs" id="time_but_off_6" type="submit" onclick="time_button(this,6,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>				
-									</div>
-								</div>
-							</div>
-						</li>
-						<li id="devlist" class="list-group-item">
-							<div class="switch">
-								<input type="radio" name="switch-7" id="switch-radio-off-7" class="switch-radio switch-radio-off">
-								<label for="switch-radio-off-7" class="switch-label switch-label-off">
-									Выкл.
-									<span class="switch-slider" onclick="set_pinout(this,6,1);" type="submit"></span>
-								</label>
-								<input type="radio" checked name="switch-7" id="switch-radio-on-7" class="switch-radio switch-radio-on">
-								<label for="switch-radio-on-7" class="switch-label switch-label-on">
-									Вкл.
-									<span class="switch-slider" onclick="set_pinout(this,6,0);" type="submit"></span>
-								</label>
-							</div>
-							
-							<div class="col-md-4 col-sm-4 col-lg-4 row">
-								<div class="input-group">
-										<input class="form-control input" id="pin6" value="{{pin6_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
-									<span class="input-group-btn">
-										<button class="btn btn-default" type="button" onclick="set_pin_name(this,6);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
-									</span>
-								</div>	
-							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
-								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv7')" aria-pressed="false" autocomplete="off" style="">
-									Time On/Off
-								</div>
-								<div id="TimeDateDiv7" style="display: none;">
-									<div class="text-left" style="width: 115px;">
-										 <div class="input-group">
-											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_7" list="time-list" value="{{pin7_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
-											<div class="input-group-btn">
-												<button class="btn btn-default btn-xs" id="time_but_on_7" type="submit" onclick="time_button(this,7,'ON')" style="width: 36px;">ON</button>
-											</div>	
-										 </div>
-										 <div class="input-group">
-											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_7" list="time-list" value="{{pin7_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
-											<div class="input-group-btn">
-												<button class="btn btn-default btn-xs" id="time_but_off_7" type="submit" onclick="time_button(this,7,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>	
-									</div>
-								</div>
-							</div>
-						</li>
 					</ul>
 				<button class="btn btn-block btn-warning" onclick="all_off(this)" type="button">Выключить все</button>	
 				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>	
@@ -730,5 +643,3 @@ window.onload = function() {
   };
   </script> -->
 </html>
-
-
