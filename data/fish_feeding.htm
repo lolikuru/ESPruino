@@ -18,7 +18,7 @@
 	var bright = [0,0,0];
 	var amount =[0,0,0];
 	var set_real_time;
-		
+
 	function createXmlHttpObject(){//создание xml
 	 if(window.XMLHttpRequest){
 	  xmlHttp=new XMLHttpRequest();
@@ -58,7 +58,7 @@
 						}
 				}
 			}
-			
+
 		document.getElementsByTagName('body')[0].innerHTML = new_string;
 		handleServerResponse();
 		load_presset();
@@ -121,7 +121,7 @@
 	sw_load(document.getElementById("pinload"));
 	var page = document.getElementsByClassName("container")[0];
 	page.setAttribute("style", "display:block;");
-	}	
+	}
 	function hideBox(id) {//сокрытие элементов будильника
 	var hb = document.getElementById(id);
 	if (hb.style.display === "none") {
@@ -129,8 +129,8 @@
 	} else {
 		hb.style.display = "none";
 	}
-	}	 
-	
+	}
+
 	function real_time(hours,min,sec) {//отсчет времени
    sec=Number(sec)+1;
     if (sec>=60){min=Number(min)+1;sec=0;
@@ -153,13 +153,13 @@
     real_time(hours=res[0],min=res[1],sec=res[2]);
     document.body.style.backgroundColor="rgb("+jsonResponse.rgb+")";
    }
-   
+
         function load_time(submit){//установка времени
     server = "/Time";
     send_request(submit,server);
     load();
    }
-	 
+
 	 function auto_alarm(hour,min){//проверка алармов
 	 if(min < 10) min = "0"+min;
 	 if(hour < 10) hour = "0"+hour;
@@ -176,7 +176,7 @@
 		}
 		}
 	 }
-	 
+
 	function set_pinout(submit,val,sw){//установка положения вывода
 	server = "/pins?pin"+val+"="+sw;
     send_request(submit,server);
@@ -186,23 +186,23 @@
 	server = "/pins?pin"+num+"="+val('pin'+num);
     send_request(submit,server);
    }
-   
+
         function set_fadeon(submit,val,sw){//установка параметров + сокрытие элементов при статике
 	server = "/mode?fadeon"+val+"="+sw;
 	var val_1 = val+1;
-	if(sw == 1) { 
+	if(sw == 1) {
 	document.getElementById("pwm_"+val_1).style.display = "block";
 	document.getElementById("pwm_i_"+val_1).style.display = "block";
 	}
-	if(sw == 0) { 
+	if(sw == 0) {
 	document.getElementById("pwm_"+val_1).style.display = "none";
 	document.getElementById("pwm_i_"+val_1).style.display = "none";
 	}
-	
+
         send_request(submit,server);
 	fadeon[val]=sw;
 	}
-   
+
 	function all_off(submit){//выключить всё
 	for (var i = 1; i < 8; i++) {
 	check(i,0)
@@ -243,22 +243,22 @@
 	}
     server = "/pins?pin0="+switch_pos[0]+"&pin1="+switch_pos[1]+"&pin2="+switch_pos[2]+"&pin3="+switch_pos[3]+"&pin4="+switch_pos[4]+"&pin5="+switch_pos[5]+"&pin6="+switch_pos[6];
 	send_request(submit,server);
-	
+
 	for (var i = 1; i < 4; i++) {//чтение из памяти
 	fadecheck(i,fadeon[i-1]);
 	}
     server = "/mode?fadeon0="+fadeon[0]+"&fadeon1="+fadeon[1]+"&fadeon2="+fadeon[2];
 	send_request(submit,server);
 	}
-	
+
 	function set_settings(submit,param,vect,ch){//установка параметров скорости и задержки
 	var t;
 	if(param==0) {param='bright'; t = bright[ch];}
 	if(param==1) {param='amount'; t = amount[ch];}
-	
+
 	if((param=='bright'&&t>0&&t<254)||(param=='amount'&&t>0&&t<29))
 	{if(vect==1) t++;}
-	if((param=='bright'&&t<255&&t>1)||(param=='amount'&&t<30&&t>1))	
+	if((param=='bright'&&t<255&&t>1)||(param=='amount'&&t<30&&t>1))
 	{if(vect==0) t--;}
 	 console.log(param+ch.toString()+'='+t);
 	 server = "/mode?"+param+ch.toString()+"="+t;
@@ -267,13 +267,13 @@
 	if(param=='bright') bright[ch]=t;
 	if(param=='amount') amount[ch]=t;
 	}
-	
+
 	function time_button(submit,pin,state){//alarm set
 	if(state=='OFF'){
-	
+
 	document.getElementById('time_but_off_'+pin).classList.toggle('btn-default');
 	document.getElementById('time_but_off_'+pin).classList.toggle('btn-danger');
-	
+
 	document.getElementById("timeoff_"+pin).disabled = !document.getElementById("timeoff_"+pin).disabled;
 	if(submit!=''){
 	if(alarm_state_off[pin]=="OFF"){
@@ -287,13 +287,13 @@
 	send_request(submit,server);
 	}
 	}
-	
+
 	if(state=='ON'){
 	document.getElementById('time_but_on_'+pin).classList.toggle('btn-default');
 	document.getElementById('time_but_on_'+pin).classList.toggle('btn-success');
-	
+
 	document.getElementById("timeon_"+pin).disabled = !document.getElementById("timeon_"+pin).disabled;
-	
+
 	if(submit!=''){
 	if(alarm_state_on[pin]=="OFF"){
 	alarm_state_on[pin] = "ON";
@@ -318,8 +318,8 @@
 			<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2" style="
 				padding-left: 0px;
 				padding-right: 0px;">
-				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>	
-				<button class="btn btn-block btn-warning" id="pinload" onclick="sw_load(this);" style="display:none;" type="button">Загрузить...</button>	
+				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>
+				<button class="btn btn-block btn-warning" id="pinload" onclick="sw_load(this);" style="display:none;" type="button">Загрузить...</button>
 					<ul class="list-group col-6">
 						<li id="devlist" class="list-group-item">
 								<div class="switch" value="true">
@@ -332,25 +332,25 @@
 										Вкл.
 										<span class="switch-slider" onclick="set_pinout(this,0,0);" type="submit"></span>
 									</label>
-								</div> 
+								</div>
 								<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
 									<div class="input-group">
 										<input class="form-control input" id="pin0" value="{{pin0_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,0);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-									</div>									
-								</div>	
+									</div>
+								</div>
 								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									<label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode1st" name="optradio" onclick="set_fadeon(this,0,0);"><img src="/css/images/Stabile.png" alt="-">
-									</label>   
+									</label>
 									<label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode1fa" name="optradio" onclick="set_fadeon(this,0,1);"><img src="/css/images/Faid.png" alt="~">
 									</label>
 								</div>
 								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_1" style="padding: 1px 1px;">
-									
+
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
 									</div>
@@ -361,7 +361,7 @@
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
+
 
 									  <span class="input-group-addon" id="bright0" style="
 											" type="text">{{bright0}}</span>
@@ -369,21 +369,21 @@
 										<button class="btn btn-secondary" id="bt0+" onclick="set_settings(this,0,1,0);" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 										</span>
-									
-									
+
+
 										</div>
-										
-									
-									
+
+
+
 									<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="am0-" onclick="set_settings(this,1,0,0)" type="button" style="
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
+
 
 									  <span class="input-group-addon" id="amount0" style="
 											" type="text">{{amount0}}</span>
@@ -391,13 +391,13 @@
 										<button class="btn btn-secondary" id="am0+" onclick="set_settings(this,1,1,0)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 									</span>
-									
-									
+
+
 									</div>
 									</div>
-										
+
 						</li>
 						<li id="devlist" class="list-group-item">
 							<div class="switch">
@@ -418,7 +418,7 @@
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,1);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-								</div>	
+								</div>
 							</div>
 								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
@@ -429,7 +429,7 @@
 									  </label>
 								</div>
 								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_2" style="padding: 1px 1px;">
-									
+
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
 									</div>
@@ -440,7 +440,7 @@
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
+
 
 									  <span class="input-group-addon" id="bright1" style="
 											" type="text">{{bright1}}</span>
@@ -448,17 +448,17 @@
 										<button class="btn btn-secondary" id="bt1+" onclick="set_settings(this,0,1,1)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 									</span>
 									</div>
-									
+
 									<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="am1-" onclick="set_settings(this,1,0,1)" type="button" style="
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
+
 
 									  <span class="input-group-addon" id="amount1" style="
 											" type="text">{{amount1}}</span>
@@ -466,11 +466,11 @@
 										<button class="btn btn-secondary" id="am1+" onclick="set_settings(this,1,1,1)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 									</span>
 									</div>
 									</div>
-									
+
 						</li>
 						<li id="devlist" class="list-group-item">
 							<div class="switch">
@@ -491,7 +491,7 @@
 										<span class="input-group-btn">
 											<button class="btn btn-default" type="button" onclick="set_pin_name(this,2);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 										</span>
-										</div>	
+										</div>
 								</div>
 								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
@@ -502,7 +502,7 @@
 									  </label>
 								</div>
 								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_3" style="padding: 1px 1px;">
-									
+
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
 								</div>
@@ -519,17 +519,17 @@
 										<button class="btn btn-secondary" id="bt2+" onclick="set_settings(this,0,1,2)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 									</span>
 									</div>
-									
+
 									<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="am2-" onclick="set_settings(this,1,0,2)" type="button" style="
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
+
 
 									  <span class="input-group-addon" id="amount2" style="
 											" type="text">{{amount2}}</span>
@@ -537,10 +537,10 @@
 										<button class="btn btn-secondary" id="am2+" onclick="set_settings(this,1,1,2)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
+
 									</span>
 									</div>
-									</div>	
+									</div>
 								</li>
 						<li id="devlist" class="list-group-item">
 							<div class="switch">
@@ -561,9 +561,9 @@
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,3);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-								</div>	
+								</div>
 							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
 								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv4')" aria-pressed="false" autocomplete="off" style="">
 									Time On/Off
 								</div>
@@ -573,14 +573,14 @@
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_4" list="time-list" value="{{pin4_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_on_4" type="submit" onclick="time_button(this,4,'ON')" style="width: 36px;">ON</button>
-											</div>	
+											</div>
 										 </div>
 										 <div class="input-group">
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_4" list="time-list" value="{{pin4_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_off_4" type="submit" onclick="time_button(this,4,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>					
+											</div>
+										 </div>
 									</div>
 								</div>
 							</div>
@@ -604,9 +604,9 @@
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,4);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-								</div>	
+								</div>
 							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
 								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv5')" aria-pressed="false" autocomplete="off" style="">
 									Time On/Off
 								</div>
@@ -616,14 +616,14 @@
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_5" list="time-list" value="{{pin5_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_on_5" type="submit" onclick="time_button(this,5,'ON')" style="width: 36px;">ON</button>
-											</div>	
+											</div>
 										 </div>
 										 <div class="input-group">
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_5" list="time-list" value="{{pin5_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_off_5" type="submit" onclick="time_button(this,5,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>				
+											</div>
+										 </div>
 									</div>
 								</div>
 							</div>
@@ -647,9 +647,9 @@
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,5);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-								</div>	
+								</div>
 							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
 								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv6')" aria-pressed="false" autocomplete="off" style="">
 									Time On/Off
 								</div>
@@ -659,14 +659,14 @@
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_6" list="time-list" value="{{pin6_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_on_6" type="submit" onclick="time_button(this,6,'ON')" style="width: 36px;">ON</button>
-											</div>	
+											</div>
 										 </div>
 										 <div class="input-group">
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_6" list="time-list" value="{{pin6_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_off_6" type="submit" onclick="time_button(this,6,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>				
+											</div>
+										 </div>
 									</div>
 								</div>
 							</div>
@@ -684,16 +684,16 @@
 									<span class="switch-slider" onclick="set_pinout(this,6,0);" type="submit"></span>
 								</label>
 							</div>
-							
+
 							<div class="col-md-4 col-sm-4 col-lg-4 row">
 								<div class="input-group">
 										<input class="form-control input" id="pin6" value="{{pin6_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" onclick="set_pin_name(this,6);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
 									</span>
-								</div>	
+								</div>
 							</div>
-							<div class="col-md-2 col-sm-2 col-lg-2 text-left"> 
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
 								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv7')" aria-pressed="false" autocomplete="off" style="">
 									Time On/Off
 								</div>
@@ -703,21 +703,21 @@
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_7" list="time-list" value="{{pin7_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_on_7" type="submit" onclick="time_button(this,7,'ON')" style="width: 36px;">ON</button>
-											</div>	
+											</div>
 										 </div>
 										 <div class="input-group">
 											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_7" list="time-list" value="{{pin7_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
 											<div class="input-group-btn">
 												<button class="btn btn-default btn-xs" id="time_but_off_7" type="submit" onclick="time_button(this,7,'OFF')" style="width: 36px;">OFF</button>
-											</div>	
-										 </div>	
+											</div>
+										 </div>
 									</div>
 								</div>
 							</div>
 						</li>
 					</ul>
-				<button class="btn btn-block btn-warning" onclick="all_off(this)" type="button">Выключить все</button>	
-				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>	
+				<button class="btn btn-block btn-warning" onclick="all_off(this)" type="button">Выключить все</button>
+				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>
 			</div>
 		</div>
 	</div>
