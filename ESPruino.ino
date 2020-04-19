@@ -2,21 +2,11 @@
 #include <ESP8266WebServer.h>   //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step2-webserver
 #include <ESP8266SSDP.h>        //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step3-ssdp
 #include <FS.h>                 //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step4-fswebserver
-#include "BasicStepperDriver.h"
 //                    ПЕРЕДАЧА ДАННЫХ НА WEB СТРАНИЦУ. Видео с уроком http://esp8266-arduinoide.ru/step5-datapages/
 //                    ПЕРЕДАЧА ДАННЫХ С WEB СТРАНИЦЫ.  Видео с уроком http://esp8266-arduinoide.ru/step6-datasend/
 #include <ArduinoJson.h>        //Установить из менеджера библиотек.
 //                    ЗАПИСЬ И ЧТЕНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ В ФАЙЛ. Видео с уроком http://esp8266-arduinoide.ru/step7-fileconfig/
 #include <ESP8266HTTPUpdateServer.h>  //Содержится в пакете.
-
-#define MOTOR_STEPS 300
-#define RPM 60
-#define MICROSTEPS 1
-#define DIR 13
-#define STEP 12
-#define SLEEP 5
-
-BasicStepperDriver stepper(MOTOR_STEPS, DIR, STEP, SLEEP);
 
 // Объект для обнавления с web страницы
 ESP8266HTTPUpdateServer httpUpdater;
@@ -31,41 +21,38 @@ ESP8266WebServer HTTP;
 File fsUploadFile;
 
 // Определяем переменные wifi
-String _ssid     = "Saya"; // Для хранения SSID
-String _password = "markiz18"; // Для хранения пароля сети
+String _ssid     = ""; // Для хранения SSID
+String _password = ""; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
 String SSDP_Name = "Update"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
-String _ntp = "0.europe.pool.ntp.org"; //сервер времени
+String _ntp = "192.168.1.5"; //сервер времени
 String last_time = "";
 
-byte Pinout[5] = {0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
+byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 int shifter_a = 0; //бит переключение 74hc595
-String Pinout_name[7] = {"Pin4", "Pin14", "Pin16", "Pin2", "Pin5", "Pin12", "Pin13"}; //Названия выводов
-String Alarm_on[7] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
-String Alarm_off[7] = {"23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59"}; //время выключения
-String alarm_state_on[7] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
-String alarm_state_off[7] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //или выключена настройка
+String Pinout_name[8] = {"Pin1", "Pin2", "Pin3", "Pin4", "Pin5", "Pin6", "Pin7", "Pin8"}; //Названия выводов
+String Alarm_on[8] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
+String Alarm_off[8] = {"23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59"}; //время выключения
+String alarm_state_on[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
+String alarm_state_off[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //или выключена настройка
 
 
 
 String jsonConfig = "{}";
 int port = 80;
 
-int led[5] = {4, 14, 16, 2, 5}; //вывод для управления
+int led[8] = {4, 14, 16, 2, 5, 12, 13}; //вывод для управления
 int brightness[3] = {0, 0, 0};  // переменная для fade
 int bright[3] = {6, 6, 6}; // делей
 int fadeAmount[3] = {5, 5, 5};  // шаг фейда
 byte fadeon[3] = {1, 1, 1}; //вкл выкл режима fade
 long t0 = 0; //millis()-time_synchr
 long tt = 0; //отсчет от текущей точки включения
-boolean rolling_en = false;
 
 void setup() {
-  ESP8266WebServer HTTP(port);
-  stepper.begin(RPM, MICROSTEPS);
-  stepper.setEnableActiveState(LOW);
+  ESP8266WebServer server(port);
   Serial.begin(115200);
   Serial.println("");
   //Запускаем файловую систему
@@ -88,11 +75,10 @@ void setup() {
   Serial.println("Start 2-WebServer");
   HTTP_init();
 
-  for (byte l = 0; l < 5; l++) {
+  for (byte l = 0; l < 7; l++) {
     pinMode(led[l], OUTPUT);
-    digitalWrite(led[l], Pinout[l]);
+    digitalWrite(led[l], LOW);
   }
-  digitalWrite(13, Pinout[6]);//DIR ход обратный
 }
 
 void loop() {
@@ -151,7 +137,7 @@ void loop() {
 
 void pinShift() { //включение pinout + 74hc595 ttl
   shifter_a = 0;
-  for (byte i = 0; i < 3; i++) {
+  for (byte i = 0; i < 8; i++) {
     if (Pinout[i] == 1)
     {
       shifter_a += pow(2, i);
@@ -184,11 +170,4 @@ void faid_0(int pin) {
     analogWrite(led[pin], brightness[pin]);
 
   }
-}
-
-void feed() {
-    digitalWrite(led[4], LOW);
-    stepper.rotate(360);
-    stepper.move(90);
-    digitalWrite(led[4], HIGH);
 }
