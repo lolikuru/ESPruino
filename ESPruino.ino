@@ -52,7 +52,7 @@ long t0 = 0; //millis()-time_synchr
 long tt = 0; //отсчет от текущей точки включения
 
 void setup() {
-  HTTP = ESP8266WebServer (port);
+  ESP8266WebServer server(port);
   Serial.begin(115200);
   Serial.println("");
   //Запускаем файловую систему
