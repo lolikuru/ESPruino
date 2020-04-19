@@ -36,18 +36,18 @@ bool loadConfig() {
     _ntp = root["ntp"].as<String>();
       for(byte i=0;i<8;i++) 
       {//так получаем число и строку в массиве
-        Pinout_name[i] = root["pin"+ String(i)][0].as<String>();
-        Pinout[i] = root["pin"+ String(i)][1];
-        Alarm_on[i] = root["pin"+ String(i)][2].as<String>();
-        Alarm_off[i] = root["pin"+ String(i)][3].as<String>();
-        alarm_state_on[i] = root["pin"+ String(i)][4].as<String>();
-        alarm_state_off[i] = root["pin"+ String(i)][5].as<String>();
+        //Pinout_name[i] = root["pin"+ String(i)][0].as<String>();
+        //Pinout[i] = root["pin"+ String(i)][1];
+        Alarm_time[i] = root["pin"+ String(i)][2].as<String>();
+        //Alarm_off[i] = root["pin"+ String(i)][3].as<String>();
+        alarm_state[i] = root["pin"+ String(i)][4].as<String>();
+        //alarm_state_off[i] = root["pin"+ String(i)][5].as<String>();
         }
-       for(byte i=0;i<3;i++) {
-        fadeon[i] = root["fadeon"+ String(i)];
-        bright[i] = root["bright"+ String(i)];
-        fadeAmount[i] = root["amount"+ String(i)];
-        }
+       //for(byte i=0;i<3;i++) {
+       // fadeon[i] = root["fadeon"+ String(i)];
+       // bright[i] = root["bright"+ String(i)];
+       // fadeAmount[i] = root["amount"+ String(i)];
+       // }
     return true;
 }
 
@@ -68,13 +68,14 @@ bool saveConfig() {
   
   for(byte i=0;i<8;i++){
   JsonArray& pins = json.createNestedArray("pin"+String(i));
-  pins.add(Pinout_name[i]);
-  pins.add(Pinout[i]);
-  pins.add(Alarm_on[i]);
-  pins.add(Alarm_off[i]);
-  pins.add(alarm_state_on[i]);
-  pins.add(alarm_state_off[i]);
+//  pins.add(Pinout_name[i]);
+//pins.add(Pinout[i]);
+  pins.add(Alarm_time[i]);
+//  pins.add(Alarm_off[i]);
+  pins.add(alarm_state[i]);
+//  pins.add(alarm_state_off[i]);
   }
+  /*
   for(byte i=0;i<3;i++){
   json["fadeon"+String(i)] = fadeon[i];
   json["bright"+String(i)] = bright[i];
@@ -82,7 +83,7 @@ bool saveConfig() {
   json["amount"+String(i)] = fadeAmount[i];
   
   }
-  
+  */
  
   // Помещаем созданный json в глобальную переменную json.printTo(jsonConfig);
   json.printTo(jsonConfig);
@@ -98,7 +99,3 @@ bool saveConfig() {
   configFile.close();
   return true;
   }
-
-
-
-

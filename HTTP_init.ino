@@ -5,11 +5,11 @@ void HTTP_init(void) {
   // API для устройства
   HTTP.on("/ssdp", handle_Set_Ssdp);     // Установить имя SSDP устройства по запросу вида /ssdp?ssdp=proba
   HTTP.on("/ntp", handle_Set_Ntp);        //установка сервера обновления времени NTP
-  HTTP.on("/pins", handle_Set_Pins);        // установка Pinout выходов статуса и имени
+  //HTTP.on("/pins", handle_Set_Pins);        // установка Pinout выходов статуса и имени
   HTTP.on("/ssid", handle_Set_Ssid);     // Установить имя и пароль роутера по запросу вида /ssid?ssid=home2&password=12345678
   HTTP.on("/ssidap", handle_Set_Ssidap); // Установить имя и пароль для точки доступа по запросу вида /ssidap?ssidAP=home1&passwordAP=8765439
   HTTP.on("/restart", handle_Restart);   // Перезагрузка модуля по запросу вида /restart?device=ok
-  HTTP.on("/mode", handle_mode);
+  //HTTP.on("/mode", handle_mode);
   HTTP.on("/set_alarm", handle_Set_Alarm);
   
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
@@ -19,18 +19,18 @@ void HTTP_init(void) {
 }
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_on=60 будильнег
    String pinout = HTTP.arg("pinout");
- if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on")||HTTP.arg("alarm_state_off"))){
-  if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
-  if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
-  if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
-  if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
+ if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state"))){
+  if(HTTP.arg("alarm_state")=="ON")alarm_state[pinout.toInt()] = "ON";
+  if(HTTP.arg("alarm_state")=="OFF")alarm_state[pinout.toInt()] = "OFF";
+  //if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
+  //if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
     saveConfig();
     HTTP.send(200, "text/plain", "OK");
  }
    String alarm = HTTP.arg("alarm_on");
  if(alarm != "") {
   if(pinout.toInt() >= 0 && pinout.toInt() < 8){
-    Alarm_on[pinout.toInt()] = alarm;  
+    Alarm_time[pinout.toInt()] = alarm;  
     saveConfig();
     HTTP.send(200, "text/plain", "OK");
     return;
@@ -38,16 +38,17 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_on=60 будильнег
       HTTP.send(406, "text/plain", "alarm_pin_err");
       return; } 
       alarm = "";
- } else 
+  } 
+  /*else 
     alarm = HTTP.arg("alarm_off");
     if(alarm != ""){
-    Alarm_off[pinout.toInt()] = alarm; 
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
+      Alarm_off[pinout.toInt()] = alarm; 
+      saveConfig();
+      HTTP.send(200, "text/plain", "OK");
     }else {
-    HTTP.send(406, "text/plain", "alarm_pin_err");
+      HTTP.send(406, "text/plain", "alarm_pin_err");
     }
-    
+    */
     
    
   }
@@ -61,6 +62,7 @@ void handle_Set_Ssdp() {
   HTTP.send(200, "text/plain", "OK");}
   else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
 }
+/*
 void handle_mode() {
   for (byte i = 0; i < 3; i++)
     { 
@@ -91,7 +93,7 @@ void handle_mode() {
       else HTTP.send(406, "text/plain", "amount must be >0 and <30");
     } 
     saveConfig(); 
-    pinShift(); 
+//    pinShift(); 
 }
 
 
@@ -110,6 +112,7 @@ void handle_Set_Pins() {
     
   HTTP.send(200, "text/plain", "OK");
 }
+*/
 void handle_Set_Ntp() {
   _ntp = HTTP.arg("ntp");
   timeSynch(timezone);
@@ -162,25 +165,15 @@ void handle_ConfigJSON() {
   json["ntp"] = _ntp;
   for (byte i = 0; i < 8; i++) {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
-  pins.add(Pinout_name[i]);
-  pins.add(Pinout[i]);
-  pins.add(Alarm_on[i]);
-  pins.add(Alarm_off[i]);
-  pins.add(alarm_state_on[i]);
-  pins.add(alarm_state_off[i]);
-  }
-  for(byte i=0;i<3;i++){
-  json["fadeon"+String(i)] = fadeon[i];
-  json["bright"+String(i)] = bright[i];
-  if(fadeAmount[i]<0)fadeAmount[i]=-fadeAmount[i];
-  json["amount"+String(i)] = fadeAmount[i];
+  //pins.add(Pinout_name[i]);
+  //pins.add(Pinout[i]);
+  pins.add(Alarm_time[i]);
+  //pins.add(Alarm_off[i]);
+  pins.add(alarm_state[i]);
+  //pins.add(alarm_state_off[i]);
   }
   // Помещаем созданный json в переменную root
   root = "";
   json.printTo(root);
   HTTP.send(200, "text/json", root);
 }
-
-
-
-
