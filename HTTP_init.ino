@@ -11,12 +11,17 @@ void HTTP_init(void) {
   HTTP.on("/restart", handle_Restart);   // Перезагрузка модуля по запросу вида /restart?device=ok
   //HTTP.on("/mode", handle_mode);
   HTTP.on("/set_alarm", handle_Set_Alarm);
+  HTTP.on("/feed",fish_Feed);
   
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);
   // Запускаем HTTP сервер
   HTTP.begin();
 }
+void fish_Feed(){
+  Serial.println("Команда на кормление получена");
+}
+
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
    String pinout = HTTP.arg("pinout");
   if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on"))){

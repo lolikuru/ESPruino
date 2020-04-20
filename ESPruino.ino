@@ -97,7 +97,7 @@ void loop() {
             Serial.println(l);
             saveConfig();
 //            pinShift();
-            Serial.println("ON");
+            fish_Feed();
           }
         }
         last_time=Time.substring(0, 5);

@@ -1,6 +1,9 @@
 body, html {
  background-color:#E9F0F0;
 }
+#devlist{
+    border:0;
+}
 
 /* Setup */
 input:invalid {
