@@ -38,9 +38,9 @@ bool loadConfig() {
       {//так получаем число и строку в массиве
         //Pinout_name[i] = root["pin"+ String(i)][0].as<String>();
         //Pinout[i] = root["pin"+ String(i)][1];
-        Alarm_time[i] = root["pin"+ String(i)][2].as<String>();
+        alarm_time[i] = root["pin"+ String(i)][2].as<String>();
         //Alarm_off[i] = root["pin"+ String(i)][3].as<String>();
-        alarm_state[i] = root["pin"+ String(i)][4].as<String>();
+        alarm_state_on[i] = root["pin"+ String(i)][4].as<String>();
         //alarm_state_off[i] = root["pin"+ String(i)][5].as<String>();
         }
        //for(byte i=0;i<3;i++) {
@@ -70,9 +70,10 @@ bool saveConfig() {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
 //  pins.add(Pinout_name[i]);
 //pins.add(Pinout[i]);
-  pins.add(Alarm_time[i]);
+  Serial.println(alarm_time[i] + " " + alarm_state_on[i]);
+  pins.add(alarm_time[i]);
 //  pins.add(Alarm_off[i]);
-  pins.add(alarm_state[i]);
+  pins.add(alarm_state_on[i]);
 //  pins.add(alarm_state_off[i]);
   }
   /*

@@ -17,29 +17,29 @@ void HTTP_init(void) {
   // Запускаем HTTP сервер
   HTTP.begin();
 }
-void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_on=60 будильнег
+void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
    String pinout = HTTP.arg("pinout");
- if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state"))){
-  if(HTTP.arg("alarm_state")=="ON")alarm_state[pinout.toInt()] = "ON";
-  if(HTTP.arg("alarm_state")=="OFF")alarm_state[pinout.toInt()] = "OFF";
+  if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on"))){
+    if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
+    if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
   //if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
   //if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
     saveConfig();
     HTTP.send(200, "text/plain", "OK");
- }
+   }
    String alarm = HTTP.arg("alarm_on");
- if(alarm != "") {
-  if(pinout.toInt() >= 0 && pinout.toInt() < 8){
-    Alarm_time[pinout.toInt()] = alarm;  
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
+   if(alarm != "") {
+    if(pinout.toInt() >= 0 && pinout.toInt() < 8){
+      alarm_time[pinout.toInt()] = alarm;  
+      saveConfig();
+      HTTP.send(200, "text/plain", "OK");
     return;
     } else{ 
       HTTP.send(406, "text/plain", "alarm_pin_err");
       return; } 
       alarm = "";
   } 
-  /*else 
+/*  else 
     alarm = HTTP.arg("alarm_off");
     if(alarm != ""){
       Alarm_off[pinout.toInt()] = alarm; 
@@ -48,8 +48,7 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_on=60 будильнег
     }else {
       HTTP.send(406, "text/plain", "alarm_pin_err");
     }
-    */
-    
+*/  
    
   }
 
@@ -167,9 +166,9 @@ void handle_ConfigJSON() {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
   //pins.add(Pinout_name[i]);
   //pins.add(Pinout[i]);
-  pins.add(Alarm_time[i]);
+  pins.add(alarm_time[i]);
   //pins.add(Alarm_off[i]);
-  pins.add(alarm_state[i]);
+  pins.add(alarm_state_on[i]);
   //pins.add(alarm_state_off[i]);
   }
   // Помещаем созданный json в переменную root

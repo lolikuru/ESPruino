@@ -33,9 +33,9 @@ String last_time = "";
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
 //String Pinout_name[8] = {"Pin1", "Pin2", "Pin3", "Pin4", "Pin5", "Pin6", "Pin7", "Pin8"}; //Названия выводов
-String Alarm_time[8] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
+String alarm_time[8] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
 //String Alarm_off[8] = {"23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59"}; //время выключения
-String alarm_state[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
+String alarm_state_on[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
 //String alarm_state_off[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //или выключена настройка
 
 
@@ -92,7 +92,7 @@ void loop() {
       if (last_time!=Time.substring(0, 5)) {
         Serial.println(Time.substring(0, 5));
         for (byte l = 0; l < 8; l++) {
-          if (alarm_state[l] == "ON" && Alarm_time[l] == Time.substring(0, 5)) {
+          if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
 //            Pinout[l - 1] = 1;
             Serial.println(l);
             saveConfig();
