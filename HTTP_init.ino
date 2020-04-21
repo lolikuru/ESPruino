@@ -20,6 +20,7 @@ void HTTP_init(void) {
 }
 void fish_Feed(){
   Serial.println("Команда на кормление получена");
+  HTTP.send(200, "text/plain", "OK");
 }
 
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
