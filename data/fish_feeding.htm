@@ -9,8 +9,8 @@
 		 <script>
 	var xmlHttp=createXmlHttpObject();
 	var switch_pos = [0,0,0,0,0,0,0,0];
-	var alarm_on = [0,0,0,0,0,0,0,0];
-	var alarm_state_on = [,,,,,,,];
+	var alarm_on = [,,,,,,,];
+	var alarm_state_on = [0,0,0,0,0,0,0,0];
 	var set_real_time;
 
 	function createXmlHttpObject(){//создание xml
@@ -23,10 +23,10 @@
 	}
 	function load(){//получение xml и парсинг в json
 	 if(xmlHttp.readyState==0 || xmlHttp.readyState==4){
-	  xmlHttp.open('PUT','/configs.json',true);
+	  xmlHttp.open('GET','/configs.json',true);
 	  xmlHttp.send(null);
 	  xmlHttp.onload = function(e) {
-	   jsonResponse=JSON.parse(xmlHttp.responseText);
+	   jsonResponse=JSON.parse(xmlHttp.response);
 	   loadBlock();
 	  }
 	 }
@@ -36,8 +36,10 @@
 		data2 = JSON.parse(xmlHttp.responseText);
 		data = document.getElementsByTagName('body')[0].innerHTML;
 		var new_string;
+		console.log(data2);
 		for (var key in data2)
-			{if(typeof data2[key] != 'object' && typeof data2[key] != 'number'){//строки
+			{//console.log(typeof data2[key]);
+			if(typeof data2[key] != 'object' && typeof data2[key] != 'number'){//строки
 			new_string = data.replace(new RegExp('{{'+key+'}}', 'g'), data2[key]);
 			data = new_string;}
 			else {if(typeof data2[key] == 'object'){//если это массивы
@@ -111,7 +113,7 @@
 	}
 
 	function last(){//показ элементов после загрузки
-	sw_load(document.getElementById("pinload"));
+	//sw_load(document.getElementById("pinload"));
 	var page = document.getElementsByClassName("container")[0];
 	page.setAttribute("style", "display:block;");
 	}
@@ -143,13 +145,13 @@
    sec=Number(sec)+1;
     if (sec>=60){min=Number(min)+1;sec=0;
 	if(min!=0){
-	auto_alarm(hours,min);//проверка алармов
+	//auto_alarm(hours,min);//проверка алармов
 	}
 	}
     if (min>=60){
 	hours=Number(hours)+1;
 	min=0;
-	auto_alarm(hours,min);
+	//auto_alarm(hours,min);
 	}
     if (hours>=24){hours=0};
     document.getElementById("time").innerHTML = hours+":"+min+":"+sec;
@@ -176,7 +178,7 @@
 		for(var n=0; n<8; n++ ){
 		  if(alarm_state_on[n] == "ON"&&alarm_on[n] == time) {
 		    console.log(time);
-		    check(n,1);
+		    //check(n,1);
 		  }
 		}
 	 }
@@ -184,11 +186,9 @@
 
 	function check(pin,sw) {//кусок подгрузки параметров on/off
     if(sw==1){
-	document.getElementById("switch-radio-off-"+pin).checked = true;
     document.getElementById("switch-radio-on-"+pin).checked = false;
 	}
 	if(sw==0){
-    document.getElementById("switch-radio-off-"+pin).checked = false;
     document.getElementById("switch-radio-on-"+pin).checked = true;
 	}
 	}
@@ -240,7 +240,6 @@
 				padding-left: 0px;
 				padding-right: 0px;">
 				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>
-				<button class="btn btn-block btn-warning" id="pinload" onclick="sw_load(this);" style="display:none;" type="button">Загрузить...</button>
 					<ul class="list-group col-6">
 						<li id="devlist" class="list-group-item"">
 							<div class="row"  id="MainButton">
@@ -309,7 +308,7 @@
 										</div>
 									</div>
 								</div>
-								  <div class="col-lg-6" id="Portion" style="display: none;">
+								  <div class="col-md-6 col-md-offset-3" id="Portion" style="display: none;">
 									<div class="input-group">
 									  <input type="text" class="form-control" placeholder="Угол поворота 1-360">
 									  <span class="input-group-btn">

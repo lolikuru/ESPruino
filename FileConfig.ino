@@ -38,9 +38,9 @@ bool loadConfig() {
       {//так получаем число и строку в массиве
         //Pinout_name[i] = root["pin"+ String(i)][0].as<String>();
         //Pinout[i] = root["pin"+ String(i)][1];
-        alarm_time[i] = root["pin"+ String(i)][2].as<String>();
+        alarm_time[i] = root["pin"+ String(i)][0].as<String>();
         //Alarm_off[i] = root["pin"+ String(i)][3].as<String>();
-        alarm_state_on[i] = root["pin"+ String(i)][4].as<String>();
+        alarm_state_on[i] = root["pin"+ String(i)][1].as<String>();
         //alarm_state_off[i] = root["pin"+ String(i)][5].as<String>();
         }
        //for(byte i=0;i<3;i++) {
