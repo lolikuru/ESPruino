@@ -5,6 +5,13 @@ body, html {
     border:0;
 }
 
+#Portion{
+    display: none;
+    top: 0px;
+    bottom: 0px;
+    padding-bottom: 10px;
+    padding-top: 10px;}
+
 /* Setup */
 input:invalid {
  border:2px solid red !important;

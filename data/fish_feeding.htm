@@ -4,6 +4,7 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8">
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Управление кормушкой</title>
 		 <script>
@@ -36,7 +37,7 @@
 		data2 = JSON.parse(xmlHttp.responseText);
 		data = document.getElementsByTagName('body')[0].innerHTML;
 		var new_string;
-		console.log(data2);
+		//console.log(data2);
 		for (var key in data2)
 			{//console.log(typeof data2[key]);
 			if(typeof data2[key] != 'object' && typeof data2[key] != 'number'){//строки
@@ -233,7 +234,7 @@
 <body onload="load();">
   <div class="container" style="display:none;">
 	   <div class="row" style="text-align:center;">
-		<h1 style="margin:50px;">Управление кормушкой</h1>
+		<h1 style="margin:10px;">Управление кормушкой</h1>
 		<h2><span class="label label-info" id="time">{{time}}</span>
 		</h2>
 			<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2" style="
@@ -308,7 +309,7 @@
 										</div>
 									</div>
 								</div>
-								  <div class="col-md-6 col-md-offset-3" id="Portion" style="display: none;">
+								  <div class="col-md-6 col-md-offset-3" id="Portion">
 									<div class="input-group">
 									  <input type="text" class="form-control" placeholder="Угол поворота 1-360">
 									  <span class="input-group-btn">
