@@ -7,9 +7,14 @@
 #include <ArduinoJson.h>        //Установить из менеджера библиотек.
 //                    ЗАПИСЬ И ЧТЕНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ В ФАЙЛ. Видео с уроком http://esp8266-arduinoide.ru/step7-fileconfig/
 #include <ESP8266HTTPUpdateServer.h>  //Содержится в пакете.
+#include <Stepper.h>
+#include <ArduinoOTA.h>//Прошивка по воздуху
 
 // Объект для обнавления с web страницы
 ESP8266HTTPUpdateServer httpUpdater;
+
+//Количество шагов на двигателе
+const int stepsPerRevolution = 2048; 
 
 #include <time.h>
 long start_t;
@@ -19,6 +24,8 @@ ESP8266WebServer HTTP;
 
 // Для файловой системы
 File fsUploadFile;
+
+Stepper myStepper(stepsPerRevolution, 4, 13, 14, 12);
 
 // Определяем переменные wifi
 String _ssid     = "Saya"; // Для хранения SSID
@@ -43,7 +50,7 @@ String alarm_state_on[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OF
 String jsonConfig = "{}";
 int port = 80;
 
-int led[8] = {4, 14, 16, 2, 5, 12, 13}; //вывод для управления
+//int led[8] = {4, 14, 16, 2, 5, 12, 13}; //вывод для управления
 //int brightness[3] = {0, 0, 0};  // переменная для fade
 //int bright[3] = {6, 6, 6}; // делей
 //int fadeAmount[3] = {5, 5, 5};  // шаг фейда
@@ -72,10 +79,16 @@ void setup() {
   //Настраиваем и запускаем HTTP интерфейс
   Serial.println("Start 2-WebServer");
   HTTP_init();
+  myStepper.setSpeed(15);
+  //Устанавливает скорость шпиндиля
+  Serial.println("Start 8-OTAServer");
+  StartOTA();
+  
 
 }
 
 void loop() {
+  ArduinoOTA.handle();
   HTTP.handleClient();
   delay(1);
 
@@ -105,23 +118,13 @@ void loop() {
     }
 }
 
-
-
-//void pinShift() { //включение pinout + 74hc595 ttl
-//  shifter_a = 0;
-//  for (byte i = 0; i < 8; i++) {
-//    if (Pinout[i] == 1)
-//    {
-//      shifter_a += pow(2, i);
-//      if (fadeon[i] != 1)
-//        digitalWrite(led[i], HIGH);
-//    }
-//    else if (fadeon[i] != 1)
-//      digitalWrite(led[i], LOW);
-//    else {
-//      brightness[i] = 0;
-//      analogWrite(led[i], 0);
-//    }
-//  }
-//  Serial.println(shifter_a);
-//}
+void StepRun(int steps) {
+  while(steps>10){
+    myStepper.step(10);
+    if(steps%50==0) {
+        Serial.print("steps:");
+        Serial.println(steps);
+   }
+    steps-=10;
+  }
+}

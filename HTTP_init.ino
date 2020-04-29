@@ -20,6 +20,7 @@ void HTTP_init(void) {
 }
 void fish_Feed(){
   Serial.println("Команда на кормление получена");
+  StepRun(500);
   HTTP.send(200, "text/plain", "OK");
 }
 
