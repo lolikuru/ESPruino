@@ -1,0 +1,48 @@
+void handleLogin() {
+  String msg;
+  if (HTTP.hasHeader("Cookie")) {
+    Serial.print("Found cookie: ");
+    String cookie = HTTP.header("Cookie");
+    Serial.println(cookie);
+  }
+  if (HTTP.hasArg("DISCONNECT")) {
+    Serial.println("Disconnection");
+    HTTP.sendHeader("Location", "/login");
+    HTTP.sendHeader("Cache-Control", "no-cache");
+    HTTP.sendHeader("Set-Cookie", "ESPSESSIONID=0");
+    HTTP.send(301);
+    return;
+  }
+  if (HTTP.hasArg("USERNAME") && HTTP.hasArg("PASSWORD")) {
+    if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == "admin") {
+      HTTP.sendHeader("Location", "/");
+      HTTP.sendHeader("Cache-Control", "no-cache");
+      HTTP.sendHeader("Set-Cookie", "ESPSESSIONID=1");
+      HTTP.send(301);
+      Serial.println("Log in Successful");
+      return;
+    }
+    msg = "Wrong username/password! try again.";
+    Serial.println("Log in Failed");
+  }
+  String content = "<html><body><form action='/login' method='POST'>To log in, please use : admin/admin<br>";
+  content += "User:<input type='text' name='USERNAME' placeholder='user name'><br>";
+  content += "Password:<input type='password' name='PASSWORD' placeholder='password'><br>";
+  content += "<input type='submit' name='SUBMIT' value='Submit'></form>" + msg + "<br>";
+  content += "You also can go <a href='/inline'>here</a></body></html>";
+  HTTP.send(200, "text/html", content);
+}
+
+void handleRoot() {
+  Serial.println("Enter handleRoot");
+  String header;
+  if (!is_authenticated()) {
+    HTTP.sendHeader("Location", "/login");
+    HTTP.sendHeader("Cache-Control", "no-cache");
+    HTTP.send(301);
+    return;
+  }
+    HTTP.sendHeader("Location", "/index.htm");
+    HTTP.sendHeader("Cache-Control", "no-cache");
+    HTTP.send(301);
+}

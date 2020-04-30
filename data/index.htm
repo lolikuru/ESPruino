@@ -65,7 +65,9 @@
    }
    function restart(submit,texts){
     if (confirm(texts)) {
-	 server = "/restart?device=ok";
+	 server = "/login?DISCONNECT=YES";
+     send_request(submit,server);
+     server = "/restart?device=ok";
      send_request(submit,server);
      return true;
     } else {

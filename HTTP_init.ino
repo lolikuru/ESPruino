@@ -12,6 +12,19 @@ void HTTP_init(void) {
   //HTTP.on("/mode", handle_mode);
   HTTP.on("/set_alarm", handle_Set_Alarm);
   HTTP.on("/feed",fish_Feed);
+
+  HTTP.on("/", handleRoot);
+  HTTP.on("/login", handleLogin);
+  HTTP.on("/inline", []() {
+    HTTP.send(200, "text/plain", "this works without need of authentication");
+  });
+
+  HTTP.onNotFound(handleNotFound);
+  //here the list of headers to be recorded
+  const char * headerkeys[] = {"User-Agent", "Cookie"} ;
+  size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
+  //ask HTTP to track these headers
+  HTTP.collectHeaders(headerkeys, headerkeyssize);
   
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);

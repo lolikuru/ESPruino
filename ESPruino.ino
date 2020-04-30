@@ -22,6 +22,21 @@ long start_t;
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
 
+bool is_authenticated() {
+  Serial.println("Enter is_authenticated");
+  if (HTTP.hasHeader("Cookie")) {
+    Serial.print("Found cookie: ");
+    String cookie = HTTP.header("Cookie");
+    Serial.println(cookie);
+    if (cookie.indexOf("ESPSESSIONID=1") != -1) {
+      Serial.println("Authentication Successful");
+      return true;
+    }
+  }
+  Serial.println("Authentication Failed");
+  return false;
+}
+
 // Для файловой системы
 File fsUploadFile;
 
@@ -127,8 +142,8 @@ void StepRun(int steps) {
    }
     steps-=10;
   }
-  digitalWrite(4,LOW);
-  digitalWrite(13,LOW);
-  digitalWrite(14,LOW);
-  digitalWrite(12,LOW);
+    digitalWrite(4,LOW);
+    digitalWrite(13,LOW);
+    digitalWrite(14,LOW);
+    digitalWrite(12,LOW);
 }
