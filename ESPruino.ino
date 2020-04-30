@@ -127,4 +127,8 @@ void StepRun(int steps) {
    }
     steps-=10;
   }
+  digitalWrite(4,LOW);
+  digitalWrite(13,LOW);
+  digitalWrite(14,LOW);
+  digitalWrite(12,LOW);
 }
