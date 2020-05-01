@@ -3,101 +3,142 @@
  <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8">
   <link rel="stylesheet" href="/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="/css/style.css">
   <script type="text/javascript" src="/js/function.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Доп. настройки</title>
+  <title>Вход</title>
   <script type="text/javascript">
-   var set_real_time;
-   function handleServerResponse(){
-    clearTimeout(set_real_time);
-    var res = jsonResponse.time.split(":");
-    real_time(hours=res[0],min=res[1],sec=res[2]);
-    document.body.style.backgroundColor="rgb("+jsonResponse.rgb+")";
-   }
-   function real_time(hours,min,sec) {
-   sec=Number(sec)+1;
-    if (sec>=60){min=Number(min)+1;sec=0;}
-    if (min>=60){hours=Number(hours)+1;min=0;}
-    if (hours>=24){hours=0};
-    document.getElementById("time").innerHTML = hours+":"+min+":"+sec;
-    set_real_time = setTimeout("real_time("+hours+","+min+","+sec+");", 1000);
-   }
-   function load_time(submit){
-    server = "/Time";
-    send_request(submit,server);
-    load();
-   }
-   function load_ntp(submit){
-    server = "/ntp";
-    send_request(submit,server);
-    load();
-   }
-   function time_zone(submit){
-    server = "/TimeZone?timezone="+val('timezone');
-    send_request(submit,server);
-   }
-   function set_time_zone(submit){
-    var set_date = new Date();
-    var gmtHours = -set_date.getTimezoneOffset()/60;
-    document.getElementById('timezone').value = gmtHours;
-    server = "/TimeZone?timezone="+gmtHours;
-    send_request(submit,server);
-   }
-   function set_ssid(submit){
-    server = "/ssid?ssid="+val('ssid')+"&password="+encodeURIComponent(val('password'));
-    send_request(submit,server);
-    alert("Измененя вступят в силу после перезагрузки. Пожалуйта перезагрузите устройство.");
-   }
-   function set_ntp(submit){
-    server = "/ntp?ntp="+val('ntp');
-    send_request(submit,server);
-   }
-   function set_ssid_ap(submit){
-    server = "/ssidap?ssidAP="+val('ssidap')+"&passwordAP="+encodeURIComponent(val('passwordAp'));
-    send_request(submit,server);
-    alert("Измененя вступят в силу после перезагрузки. Пожалуйта перезагрузите устройство.");
-   }
-   function set_ssdp(submit){
-    server = "/ssdp?ssdp="+val('ssdp');
-    send_request(submit,server);
-    document.getElementById('ssdp_t').innerHTML = val('ssdp');
-   }
-   function restart(submit,texts){
-    if (confirm(texts)) {
-	 server = "/restart?device=ok";
-     send_request(submit,server);
-     return true;
-    } else {
-     return false;
-    }
-   }
   </script>
+  <style>
+         body, html {
+         background-color:#E9F0F0;
+         }
+        #devlist{
+            border:0;
+        }
+
+        #Portion{
+            display: none;
+            top: 0px;
+            bottom: 0px;
+            padding-bottom: 10px;
+            padding-top: 10px;}
+
+        /* Setup */
+        input:invalid {
+         border:2px solid red !important;
+        }
+        input:invalid + input[type=submit] {
+         pointer-events:none;
+         opacity:0.5;
+        }
+        .col-sm-offset-2 {
+         background-color:#fff;
+         box-shadow:0 12px 15px rgba(0, 0, 0, 0.4);
+         padding:20px;
+        }
+
+        /* device */
+        .block {
+         background-color:#fff;
+         box-shadow:0 12px 15px rgba(0, 0, 0, 0.4);
+         padding:20px;
+         margin:20px;
+         float:left;
+        }
+        @media (max-width:480px) {
+         .block {
+          margin:20px -15px;
+         }
+        }
+        .history {
+         background-color:#fff;
+         box-shadow:0 12px 15px rgba(0, 0, 0, 0.4);
+         padding:10px;
+         margin:10px 0;
+         display:block;
+        }
+        .header {
+         background-color:#fff;
+         box-shadow:0 22px 22px -22px gray;
+         margin:0 -15px 23px;
+         padding:1px 50px 15px;
+         border-radius:10px 10px 0 0;
+        }
+        .device {
+         background-color:#F5F5F5;
+         box-shadow:0 5px 25px rgba(0, 0, 0, 0.4);
+         border-radius:10px;
+         margin-top:5%;
+        }
+        h5 {
+         background-color:#4db6ac;
+         color:#fff;
+         margin-top:-40px;
+         padding:10px 0;
+         width:50%;
+         text-align:center;
+         text-transform:uppercase;
+        }
+        .add span {
+         background-color:#c0c7ca;
+         border-radius:100px;
+         box-shadow:0 5px 25px rgba(0, 0, 0, 0.4);
+         padding:0 20px;
+        }
+        .add {
+         font-size:40px;
+        }
+        #date {
+         text-transform:capitalize;
+        }
+
+        /* loader */
+        .loader {
+         border:15px solid #fff;
+         border-top:15px solid #FF851B;
+         border-radius:50%;
+         width:70px;
+         height:70px;
+         animation:spin 1s linear infinite;
+         margin-left:45%;
+        }
+        @keyframes spin {
+         0% { transform:rotate(0deg); }
+         100% { transform:rotate(360deg); }
+        }
+        ul#history {
+         text-indent: .5em;
+         border-left: .25em solid #c0c7ca;
+         margin-left: 5px;
+        }
+        #history li {
+         margin-left: -31px;
+        }
+
+  </style>
  </head>
-<body onload="load();">
-  <div class="container" style="display:block;">
+<body>
+  <div class="container">
 	   <div class="row" style="text-align:center;">
-		<h1 style="margin:10px;">Управление кормушкой</h1>
-		<h2><span class="label label-info" id="time">{{time}}</span>
-		</h2>
+		<h1 style="margin:10px;">Вход</h1>
 			<div class="col-xs-12 col-sm-8 col-md-8 col-sm-offset-2 col-md-offset-2 col-sm-offset-2">
-                <form class="form-horizontal" action='/login' method='POST' role="form" method="POST">
+                <form class="form-horizontal" action='/login' role="form" method="POST">
                   <div class="col-sm-12 form-group">
                     <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">Логин</label>
+                    <label class="col-sm-2 control-label">Логин</label>
                     <div class="col-sm-10">
-                      <input type="text" id="login"class="form-control" placeholder="Логин" name="login">
+                      <input type="text" name="USERNAME" class="form-control" placeholder="Логин">
                     </div>
                   </div>
                   <div class="form-group">
-                    <label for="inputPassword3" class="col-sm-2 control-label">Пароль</label>
+                    <label class="col-sm-2 control-label">Пароль</label>
                     <div class="col-sm-10">
-                      <input type="password" id="pass" class="form-control" placeholder="Пароль" name="password">
+                      <input type="password" name="PASSWORD" class="form-control" placeholder="Пароль">
                     </div>
                   </div>
                   <div class="form-group">
                     <div>
-                      <button type="submit" class="btn btn-default btn-sm">Войти</button>
+                      <button type="submit"  name="SUBMIT" value="Submit" class="btn btn-default btn-sm">Войти</button>
                     </div>
                   </div>
                 </form>

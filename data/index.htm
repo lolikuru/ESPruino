@@ -74,6 +74,16 @@
      return false;
     }
    }
+   function logout(){
+     delete_cookie("ESPSESSIONID");
+     delete_cookie("expres");
+     document.location.replace("/login");
+   }
+   function delete_cookie ( cookie_name ){
+     var cookie_date = new Date ( );  // Текущая дата и время
+     cookie_date.setTime ( cookie_date.getTime() - 1 );
+     document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+   }
   </script>
  </head>
  <body onload="load();">
@@ -129,7 +139,7 @@
 	 <div class="alert alert-dismissible alert-warning"><strong>Точка доступа будет создана только при отсутствующем подключении к роутеру</strong>
       </div>
      <input class="btn btn-block btn-warning" value="Перезагрузить устройство" onclick="restart(this,'Вы действительно хотите перезагрузить устройство?');" type="submit">
-     <a class="btn btn-block btn-default" href="/device.htm">Страница управления</a>
+     <input class="btn btn-block btn-default" value="Выход" onclick="logout();" type="submit">
     </div>
    </div>
   </div>

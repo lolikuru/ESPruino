@@ -52,7 +52,7 @@ String getContentType(String filename) {
 
 bool handleFileRead(String path) {
   String header;
-  if (!is_authenticated()) {
+  if (!is_authenticated() && !path.endsWith("/css/bootstrap.min.css")) {
     HTTP.sendHeader("Location", "/login");
     HTTP.sendHeader("Cache-Control", "no-cache");
     HTTP.send(301);
@@ -147,8 +147,6 @@ void handleFileList() {
 void handleNotFound() {
     HTTP.onNotFound([]() {
       if (!handleFileRead(HTTP.uri())){
-        //HTTP.send(404, "text/plain", "FileNotFound");
-    //  });
         String message = "File Not Found\n\n";
         message += "URI: ";
         message += HTTP.uri();

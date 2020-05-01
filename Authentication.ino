@@ -13,11 +13,13 @@ void handleLogin() {
     HTTP.send(301);
     return;
   }
+  Serial.println(HTTP.hasArg("USERNAME")+"  "+HTTP.hasArg("PASSWORD"));
   if (HTTP.hasArg("USERNAME") && HTTP.hasArg("PASSWORD")) {
     if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == "admin") {
       HTTP.sendHeader("Location", "/");
       HTTP.sendHeader("Cache-Control", "no-cache");
       HTTP.sendHeader("Set-Cookie", "ESPSESSIONID=1");
+      //HTTP.sendHeader("Set-Cookie", "expres="+GetDate());
       HTTP.send(301);
       Serial.println("Log in Successful");
       return;
@@ -25,12 +27,15 @@ void handleLogin() {
     msg = "Wrong username/password! try again.";
     Serial.println("Log in Failed");
   }
-  String content = "<html><body><form action='/login' method='POST'>To log in, please use : admin/admin<br>";
-  content += "User:<input type='text' name='USERNAME' placeholder='user name'><br>";
-  content += "Password:<input type='password' name='PASSWORD' placeholder='password'><br>";
-  content += "<input type='submit' name='SUBMIT' value='Submit'></form>" + msg + "<br>";
-  content += "You also can go <a href='/inline'>here</a></body></html>";
-  HTTP.send(200, "text/html", content);
+    File file = SPIFFS.open("/auth.htm", "r");
+    size_t sent = HTTP.streamFile(file, "text/html");
+    file.close();
+  //String content = "<html><body><form action='/login' method='POST'>To log in, please use : admin/admin<br>";
+  //content += "User:<input type='text' name='USERNAME' placeholder='user name'><br>";
+  //content += "Password:<input type='password' name='PASSWORD' placeholder='password'><br>";
+  //content += "<input type='submit' name='SUBMIT' value='Submit'></form>" + msg + "<br>";
+  //content += "You also can go <a href='/inline'>here</a></body></html>";
+  //HTTP.send(200, "text/html", content);
 }
 
 void handleRoot() {
