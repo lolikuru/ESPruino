@@ -15,11 +15,8 @@ void HTTP_init(void) {
 
   HTTP.on("/", handleRoot);
   HTTP.on("/login", handleLogin);
-  HTTP.on("/inline", []() {
-    HTTP.send(200, "text/plain", "this works without need of authentication");
-  });
 
-  HTTP.onNotFound(handleNotFound);
+  //HTTP.onNotFound(handleNotFound);
   //here the list of headers to be recorded
   const char * headerkeys[] = {"User-Agent", "Cookie"} ;
   size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);

@@ -65,18 +65,18 @@
 	}
 
 	function load_presset(){
-	datas = JSON.parse(xmlHttp.responseText);
-	for (var i = 0;i < 8; i++) {
-	switch_pos[i] = datas["pin"+i][0];
-	alarm_on[i] = datas["pin"+i][0];//время включения
+	  datas = JSON.parse(xmlHttp.responseText);
+	  for (var i = 0;i < 8; i++) {
+	    switch_pos[i] = datas["pin"+i][0];
+	    alarm_on[i] = datas["pin"+i][0];//время включения
 	//console.log(switch_pos[i]);
     //console.log('time to alarm' + alarm_on[i]);
 	//alarm_off[i] = datas["pin"+i][3];
-	alarm_state_on[i] = datas["pin"+i][1];//вкл выкл
+	    alarm_state_on[i] = datas["pin"+i][1];//вкл выкл
 	//alarm_state_off[i] = datas["pin"+i][5];
-	if(alarm_state_on[i]=='ON') time_button('',i,'ON');
+	    if(alarm_state_on[i]=='ON') time_button('',i,'ON');
 	//if(datas["pin"+i][5]=='ON') time_button('',i,'OFF');
-	}
+	  }
 	}
 
 	function val(id){
@@ -165,16 +165,16 @@
     document.body.style.backgroundColor="rgb("+jsonResponse.rgb+")";
    }
 
-        function load_time(submit){//установка времени
-    server = "/Time";
-    send_request(submit,server);
-    load();
+    function load_time(submit){//установка времени
+      server = "/Time";
+      send_request(submit,server);
+      load();
    }
 
 	 function auto_alarm(hour,min){//проверка алармов
-	 if(min < 10) min = "0"+min;
-	 if(hour < 10) hour = "0"+hour;
-	 var time = hour+":"+min;
+	   if(min < 10) min = "0"+min;
+	   if(hour < 10) hour = "0"+hour;
+	   var time = hour+":"+min;
 	 //console.log(hour+":"+min);
 		for(var n=0; n<8; n++ ){
 		  if(alarm_state_on[n] == "ON"&&alarm_on[n] == time) {
@@ -186,12 +186,12 @@
 
 
 	function check(pin,sw) {//кусок подгрузки параметров on/off
-    if(sw==1){
-    document.getElementById("switch-radio-on-"+pin).checked = false;
-	}
-	if(sw==0){
-    document.getElementById("switch-radio-on-"+pin).checked = true;
-	}
+      if(sw==1){
+        document.getElementById("switch-radio-on-"+pin).checked = false;
+	  }
+	  if(sw==0){
+        document.getElementById("switch-radio-on-"+pin).checked = true;
+	  }
 	}
 
 	function feed(submit){
@@ -200,35 +200,41 @@
 	}
 
 	function sw_load(submit){//подгрузка параметров on/off выходов при старте и включение faid
-	for (var i = 1; i < 8; i++) {
-	check(i,switch_pos[i-1]);
-	}
+	  for (var i = 1; i < 8; i++) {
+	    check(i,switch_pos[i-1]);
+	  }
     //server = "/pins?pin0="+switch_pos[0]+"&pin1="+switch_pos[1]+"&pin2="+switch_pos[2]+"&pin3="+switch_pos[3]+"&pin4="+switch_pos[4]+"&pin5="+switch_pos[5]+"&pin6="+switch_pos[6];
 	//send_request(submit,server);
-
 	}
 
 	function time_button(submit,pin,state){//alarm set
-
-	if(state=='ON'){
-	document.getElementById('time_but_on_'+pin).classList.toggle('btn-default');
-	document.getElementById('time_but_on_'+pin).classList.toggle('btn-success');
-
-	document.getElementById("timeon_"+pin).disabled = !document.getElementById("timeon_"+pin).disabled;
-
-	if(submit!=''){
-	if(alarm_state_on[pin]=="OFF"){
-	alarm_state_on[pin] = "ON";
-	alarm_on[pin] = val('timeon_'+pin);
-	server = "set_alarm?pinout="+pin+"&alarm_state_on=ON&alarm_on="+val('timeon_'+pin);
-	} else {
-	alarm_state_on[pin] = "OFF";
-	server = "set_alarm?pinout="+pin+"&alarm_state_on=OFF";
+	  if(state=='ON'){
+	    document.getElementById('time_but_on_'+pin).classList.toggle('btn-default');
+	    document.getElementById('time_but_on_'+pin).classList.toggle('btn-success');
+    	document.getElementById("timeon_"+pin).disabled = !document.getElementById("timeon_"+pin).disabled;
+	    if(submit!=''){
+	      if(alarm_state_on[pin]=="OFF"){
+	        alarm_state_on[pin] = "ON";
+	        alarm_on[pin] = val('timeon_'+pin);
+	        server = "set_alarm?pinout="+pin+"&alarm_state_on=ON&alarm_on="+val('timeon_'+pin);
+	      } else {
+	        alarm_state_on[pin] = "OFF";
+	        server = "set_alarm?pinout="+pin+"&alarm_state_on=OFF";
+	      }
+	      send_request(submit,server);
+	    }
+	  }
 	}
-	send_request(submit,server);
-	}
-	}
-	}
+	   function logout(){
+     delete_cookie("ESPSESSIONID");
+     delete_cookie("expres");
+     document.location.replace("/login");
+   }
+   function delete_cookie ( cookie_name ){
+     var cookie_date = new Date ( );  // Текущая дата и время
+     cookie_date.setTime ( cookie_date.getTime() - 1 );
+     document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+   }
    </script>
 </head>
 <body onload="load();">
@@ -238,7 +244,7 @@
 		<h2><span class="label label-info" id="time">{{time}}</span>
 		</h2>
 			<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
-				<a class="btn btn-block btn-danger" href="/">Страница настройки</a>
+				<a class="btn btn-block btn-danger" href="/index.htm">Страница настройки</a>
 					<ul class="list-group col-6" style="margin-bottom:0px;">
 						<li id="devlist" class="list-group-item"">
 							<div class="row"  id="MainButton">
@@ -319,6 +325,7 @@
 						 </li>
 					</ul>
 	             <button class="btn btn-block btn-success" id="BackButton" style="display: none;" onclick="hideBox('BackButton');" type="button">Вернуться назад</button>
+				 <input class="btn btn-block btn-default" value="Выход" onclick="logout();" style="margin-top: 0px;" type="submit">
 			</div>
 		</div>
 	</div>
