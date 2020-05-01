@@ -65,6 +65,7 @@ bool saveConfig() {
   json["ssidPassword"] = _password;
   json["timezone"] = timezone;
   json["ntp"] = _ntp;
+  json["angle"] = rotate_angle;
   
   for(byte i=0;i<8;i++){
   JsonArray& pins = json.createNestedArray("pin"+String(i));

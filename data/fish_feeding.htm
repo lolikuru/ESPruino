@@ -13,6 +13,7 @@
 	var alarm_on = [,,,,,,,];
 	var alarm_state_on = [0,0,0,0,0,0,0,0];
 	var set_real_time;
+	var angle;
 
 	function createXmlHttpObject(){//создание xml
 	 if(window.XMLHttpRequest){
@@ -225,6 +226,12 @@
 	    }
 	  }
 	}
+
+	function set_angle(submit){
+    server = "/set_angle?value="+val('angle');
+    send_request(submit,server);
+	}
+
 	   function logout(){
      delete_cookie("ESPSESSIONID");
      delete_cookie("expres");
@@ -261,7 +268,7 @@
 								</div>
 								<div class="col-md-4">
 									<span class="input-group-btn">
-								        <button class="btn btn-default" type="button" onclick="console.log('preset rotation'); hideBox('Portion');" autocomplete="off" style="">
+								        <button class="btn btn-default" type="button" onclick="hideBox('Portion');" autocomplete="off" style="">
 											<img src="/css/images/kitchen-scale.png" alt="⬇"></button>
 									</span>
 								</div>
@@ -313,11 +320,11 @@
 										</div>
 									</div>
 								</div>
-								  <div class="col-md-6 col-md-offset-3" id="Portion">
+								  <div class="col-md-6 col-md-offset-3" id="Portion" style="display: none;">
 									<div class="input-group">
-									  <input type="text" class="form-control" placeholder="Угол поворота 1-360">
+									  <input type="text" class="form-control" id="angle" value="{{angle}}" placeholder="Угол поворота 1-360">
 									  <span class="input-group-btn">
-										<button class="btn btn-default" type="button">Установить</button>
+										<button class="btn btn-default" type="submit" onclick="set_angle(this);">Установить</button>
 									  </span>
 									</div><!-- /input-group -->
 								  </div><!-- /.col-lg-6 -->

@@ -12,6 +12,7 @@ void HTTP_init(void) {
   //HTTP.on("/mode", handle_mode);
   HTTP.on("/set_alarm", handle_Set_Alarm);
   HTTP.on("/feed",fish_Feed);
+  HTTP.on("/set_angle", set_Angle);
 
   HTTP.on("/", handleRoot);
   HTTP.on("/login", handleLogin);
@@ -28,9 +29,18 @@ void HTTP_init(void) {
   // Запускаем HTTP сервер
   HTTP.begin();
 }
+void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
+  String value = HTTP.arg("value");
+  if(value.toInt() > 0 && value.toInt() < 360){
+    rotate_angle = value.toInt();
+    saveConfig();
+    HTTP.send(200, "text/plain", "OK");
+  }
+}
+
 void fish_Feed(){
   Serial.println("Команда на кормление получена");
-  StepRun(500);
+  StepRun(rotate_angle.toInt());
   HTTP.send(200, "text/plain", "OK");
 }
 
@@ -179,6 +189,7 @@ void handle_ConfigJSON() {
   json["time"] = GetTime();
   json["date"] = GetDate();
   json["ntp"] = _ntp;
+  json["angle"] = rotate_angle;
   for (byte i = 0; i < 8; i++) {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
   //pins.add(Pinout_name[i]);

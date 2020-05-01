@@ -51,6 +51,7 @@ String SSDP_Name = "FishFeeder"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
+String rotate_angle = "500";
 
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
