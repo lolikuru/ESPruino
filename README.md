@@ -21,4 +21,4 @@ PWM pins Fade\
 7. used simple coockies for web pages
 8. add driver for uln2003 drivers
 9. add OTA function for easy firmware download
-10. commented or deleted all no use function and parameters
+10. commented or deleted all no use functions and parameters
