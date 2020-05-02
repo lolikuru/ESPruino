@@ -51,7 +51,7 @@ String SSDP_Name = "FishFeeder"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
-String rotate_angle = "500";
+String rotate_angle = "360";
 
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
@@ -135,13 +135,15 @@ void loop() {
 }
 
 void StepRun(int steps) {
+  steps = map(steps,1,360,1,2048);
   while(steps>10){
-    myStepper.step(10);
-    if(steps%50==0) {
-        Serial.print("steps:");
-        Serial.println(steps);
-   }
-    steps-=10;
+    myStepper.step(5);
+    //if(steps%50==0) {
+      //  Serial.print("steps:");
+      //  Serial.println(steps);
+   //}
+    steps-=5;
+    delay(1);// fix driver bug
   }
     digitalWrite(4,LOW);
     digitalWrite(13,LOW);

@@ -31,7 +31,7 @@ void HTTP_init(void) {
 }
 void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
   String value = HTTP.arg("value");
-  if(value.toInt() > 0 && value.toInt() < 360){
+  if(value.toInt() > 0 && value.toInt() <= 2028){
     rotate_angle = value.toInt();
     saveConfig();
     HTTP.send(200, "text/plain", "OK");
