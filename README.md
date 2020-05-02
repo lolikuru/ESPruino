@@ -12,12 +12,13 @@ NTP custom adress and configuration timezone\
 PWM pins Fade\
 
 # Fish_feed branch (4mb with OTA and spiffs)
-1. delete all pinout confiuration\
-2. delete no used icons\
-3. delete off alarms\
-4. change device page for feed configurations\
-5. add authorise page\
-6. change access for all pages\
-7. add driver for uln2003 drivers\
-8. add OTA function for easy firmware download\
-9. commented or deleted all no use function and parameters\
+1. delete all pinout confiuration
+2. delete no used icons
+3. delete off alarms
+4. change device page for feed configurations
+5. add authorise page
+6. change access for all pages
+7. used simple coockies for web pages
+8. add driver for uln2003 drivers
+9. add OTA function for easy firmware download
+10. commented or deleted all no use function and parameters
