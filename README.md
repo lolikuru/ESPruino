@@ -1,31 +1,23 @@
-# ESPruino
-Arduino IDE project for ESP8266
+# ESPruino (4mb with 2mb spiffs)
+Russian comments)
+Arduino IDE project for ESP8266\
+ESPruino for Arduino IDE \
+Project forked from http://esp8266-arduinoide.ru and use 1-8 lesons\
+Using whith ArduinoJson library\
+Changed and added:\
+pinout page\
+pinout names change\
+bootstrap framework\
+NTP custom adress and configuration timezone\
+PWM pins Fade\
 
-ESPruino for Arduino IDE 
-
-Project forked from http://esp8266-arduinoide.ru and use 1-8 lesons
-
-Using whith ArduinoJson library
-
-Changed and added:
-
-pinout page
-
-pinout names change
-
-bootstrap framework
-
-NTP custom adress and configuration timezone
-
-PWM pins Fade
-
-# Fish_feed branch (4mb with OTA)
-delete all pinout confiuration\
-delete no used icons\
-delete off alarms\
-change device page for feed configurations\
-add authorise page\
-change access for all pages\
-add driver for uln2003 drivers\
-add OTA function for easy firmware download\
-commented or deleted all no use function and parameters\
+# Fish_feed branch (4mb with OTA and spiffs)
+1. delete all pinout confiuration\
+2. delete no used icons\
+3. delete off alarms\
+4. change device page for feed configurations\
+5. add authorise page\
+6. change access for all pages\
+7. add driver for uln2003 drivers\
+8. add OTA function for easy firmware download\
+9. commented or deleted all no use function and parameters\
