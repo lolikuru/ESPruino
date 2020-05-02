@@ -18,3 +18,14 @@ bootstrap framework
 NTP custom adress and configuration timezone
 
 PWM pins Fade
+
+# Fish_feed branch (4mb with OTA)
+delete all pinout confiuration\
+delete no used icons\
+delete off alarms\
+change device page for feed configurations\
+add authorise page\
+change access for all pages\
+add driver for uln2003 drivers\
+add OTA function for easy firmware download\
+commented or deleted all no use function and parameters\
