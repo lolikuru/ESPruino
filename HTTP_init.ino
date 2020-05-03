@@ -149,7 +149,6 @@ void handle_Set_Ntp() {
   if (authCheck()) {// Проверка токена
     _ntp = HTTP.arg("ntp");
     timeSynch(timezone);
-    saveConfig();
     HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
   }
 }
@@ -204,7 +203,7 @@ void handle_ConfigJSON() {
   json["date"] = GetDate();
   json["ntp"] = _ntp;
   json["angle"] = rotate_angle;
-  json["dayly_count"] = dayly_count;
+  json["dayily_count"] = dayily_count;
   for (byte i = 0; i < 8; i++) {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
   //pins.add(Pinout_name[i]);

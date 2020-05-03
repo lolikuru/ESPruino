@@ -18,9 +18,7 @@ void handleLogin() {
     if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == web_pass) {
       HTTP.sendHeader("Location", "/");
       HTTP.sendHeader("Cache-Control", "no-cache");
-      SetToken();
       HTTP.sendHeader("Set-Cookie", encoded);
-      //HTTP.sendHeader("Set-Cookie", "expres="+GetDate());
       HTTP.send(301);
       Serial.println("Log in Successful");
       return;

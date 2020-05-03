@@ -32,7 +32,6 @@ bool is_authenticated() {
     Serial.print("Found cookie: ");
     String cookie = HTTP.header("Cookie");
     Serial.println(cookie);
-    SetToken();
     Serial.println(encoded);
     if (cookie.indexOf(encoded) != -1) {
       Serial.println("Authentication Successful");
@@ -59,7 +58,7 @@ String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
 String rotate_angle = "360";
 
-int dayly_count = 0;
+int dayily_count = 0;
 
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
@@ -107,6 +106,8 @@ void setup() {
   //Устанавливает скорость шпиндиля
   Serial.println("Start 9-OTAServer");
   StartOTA();
+  Serial.println("Set 10-SetWebToken");
+  SetToken();
 
 }
 
@@ -137,7 +138,7 @@ void loop() {
           SetToken();
         }//меняем токен каждый час
         if (Time.substring(0, 5)= "00:00"){
-          dayly_count = 0;
+          dayily_count = 0;
           saveConfig();//сбрасываем счётчик кормлений за день.
         }
         last_time = Time.substring(0, 5);
@@ -146,13 +147,13 @@ void loop() {
 }
 
 void SetToken(void){
-    String toEncode = web_pass + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
+    String toEncode = random(1000) + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
     //Serial.println(toEncode);
     encoded = "ESPSESSIONID=" + base64::encode(toEncode);
 }
 
 void StepRun(int steps) {
-  dayly_count++;
+  dayily_count++;
   steps = map(steps,1,360,1,2048);
   while(steps>10){
     myStepper.step(5);
