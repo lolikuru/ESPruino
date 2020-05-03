@@ -1,10 +1,10 @@
 
 void HTTP_init(void) {
-
+  
   HTTP.on("/configs.json", handle_ConfigJSON); // формирование configs.json страницы для передачи данных в web интерфейс
   // API для устройства
   HTTP.on("/ssdp", handle_Set_Ssdp);     // Установить имя SSDP устройства по запросу вида /ssdp?ssdp=proba
-  HTTP.on("/ntp", handle_Set_Ntp);        //установка сервера обновления времени NTP
+  HTTP.on("/ntp", handle_Set_Ntp);
   //HTTP.on("/pins", handle_Set_Pins);        // установка Pinout выходов статуса и имени
   HTTP.on("/ssid", handle_Set_Ssid);     // Установить имя и пароль роутера по запросу вида /ssid?ssid=home2&password=12345678
   HTTP.on("/ssidap", handle_Set_Ssidap); // Установить имя и пароль для точки доступа по запросу вида /ssidap?ssidAP=home1&passwordAP=8765439
@@ -13,46 +13,49 @@ void HTTP_init(void) {
   HTTP.on("/set_alarm", handle_Set_Alarm);
   HTTP.on("/feed",fish_Feed);
   HTTP.on("/set_angle", set_Angle);
-
-  HTTP.on("/", handleRoot);
-  HTTP.on("/login", handleLogin);
-
+  
+  // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
+  httpUpdater.setup(&HTTP);
   //HTTP.onNotFound(handleNotFound);
   //here the list of headers to be recorded
   const char * headerkeys[] = {"User-Agent", "Cookie"} ;
   size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
   //ask HTTP to track these headers
   HTTP.collectHeaders(headerkeys, headerkeyssize);
-  
-  // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
-  httpUpdater.setup(&HTTP);
+  HTTP.on("/", handleRoot);
+  HTTP.on("/login", handleLogin);
   // Запускаем HTTP сервер
   HTTP.begin();
 }
 void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
-  String value = HTTP.arg("value");
-  if(value.toInt() > 0 && value.toInt() <= 2028){
-    rotate_angle = value.toInt();
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
+  if (authCheck()) {// Проверка токена
+    String value = HTTP.arg("value");
+    if(value.toInt() > 0 && value.toInt() <= 360){
+      rotate_angle = value.toInt();
+      saveConfig();
+      HTTP.send(200, "text/plain", "OK");
+    }
   }
 }
 
 void fish_Feed(){
-  Serial.println("Команда на кормление получена");
-  StepRun(rotate_angle.toInt());
-  HTTP.send(200, "text/plain", "OK");
+    if (authCheck()) {// Проверка токена
+     Serial.println("Команда на кормление получена");
+     StepRun(rotate_angle.toInt());
+     HTTP.send(200, "text/plain", "OK");
+    }
 }
 
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
-   String pinout = HTTP.arg("pinout");
-  if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on"))){
-    if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
-    if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
+   if (authCheck()) { // Проверка токена
+     String pinout = HTTP.arg("pinout");
+      if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on"))){
+        if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
+        if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
   //if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
   //if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
+        saveConfig();
+        HTTP.send(200, "text/plain", "OK");
    }
    String alarm = HTTP.arg("alarm_on");
    if(alarm != "") {
@@ -76,17 +79,19 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильне
       HTTP.send(406, "text/plain", "alarm_pin_err");
     }
 */  
-   
+   }
   }
 
 // Функции API-Set
 // Установка SSDP имени по запросу вида http://192.168.0.101/ssdp?ssdp=proba
 void handle_Set_Ssdp() {
-  if(HTTP.arg("ssdp") != ""){
-  SSDP_Name = HTTP.arg("ssdp"); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
-  saveConfig();                 // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");}
-  else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    if(HTTP.arg("ssdp") != ""){
+      SSDP_Name = HTTP.arg("ssdp"); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
+      saveConfig();                 // Функция сохранения данных во Flash
+      HTTP.send(200, "text/plain", "OK");}
+    else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
+  }
 }
 /*
 void handle_mode() {
@@ -140,34 +145,42 @@ void handle_Set_Pins() {
 }
 */
 void handle_Set_Ntp() {
-  _ntp = HTTP.arg("ntp");
-  timeSynch(timezone);
-  saveConfig();
-  HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    _ntp = HTTP.arg("ntp");
+    timeSynch(timezone);
+    saveConfig();
+    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  }
 }
 // Установка параметров для подключения к внешней AP по запросу вида http://192.168.0.101/ssid?ssid=home2&password=12345678
 void handle_Set_Ssid() {
-  _ssid = HTTP.arg("ssid");            // Получаем значение ssid из запроса сохраняем в глобальной переменной
-  _password = HTTP.arg("password");    // Получаем значение password из запроса сохраняем в глобальной переменной
-  saveConfig();                        // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    _ssid = HTTP.arg("ssid");            // Получаем значение ssid из запроса сохраняем в глобальной переменной
+    _password = HTTP.arg("password");    // Получаем значение password из запроса сохраняем в глобальной переменной
+    saveConfig();                        // Функция сохранения данных во Flash
+    HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  }
 }
 //Установка параметров внутренней точки доступа по запросу вида http://192.168.0.101/ssidap?ssidAP=home1&passwordAP=8765439
-void handle_Set_Ssidap() {              //
-  _ssidAP = HTTP.arg("ssidAP");         // Получаем значение ssidAP из запроса сохраняем в глобальной переменной
-  _passwordAP = HTTP.arg("passwordAP"); // Получаем значение passwordAP из запроса сохраняем в глобальной переменной
-  saveConfig();                         // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+void handle_Set_Ssidap() {//
+  if (authCheck()) {// Проверка токена
+    _ssidAP = HTTP.arg("ssidAP");         // Получаем значение ssidAP из запроса сохраняем в глобальной переменной
+    _passwordAP = HTTP.arg("passwordAP"); // Получаем значение passwordAP из запроса сохраняем в глобальной переменной
+    saveConfig();                         // Функция сохранения данных во Flash
+    HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  }
 }
 // Перезагрузка модуля по запросу вида http://192.168.0.101/restart?device=ok
 void handle_Restart() {
-  String restart = HTTP.arg("device");          // Получаем значение device из запроса
-  if (restart == "ok") {                         // Если значение равно Ок
-    HTTP.send(200, "text / plain", "Reset OK"); // Oтправляем ответ Reset OK
-    ESP.restart();                                // перезагружаем модуль
-  }
-  else {                                        // иначе
-    HTTP.send(200, "text / plain", "No Reset"); // Oтправляем ответ No Reset
+  if (authCheck()) {// Проверка токена
+    String restart = HTTP.arg("device");          // Получаем значение device из запроса
+    if (restart == "ok") {                         // Если значение равно Ок
+      HTTP.send(200, "text / plain", "Reset OK"); // Oтправляем ответ Reset OK
+      ESP.restart();                                // перезагружаем модуль
+    }
+    else {                                        // иначе
+      HTTP.send(200, "text / plain", "No Reset"); // Oтправляем ответ No Reset
+    }
   }
 }
 

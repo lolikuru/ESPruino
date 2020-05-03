@@ -8,12 +8,12 @@ void SSDP_init(void) {
   SSDP.setSchemaURL("description.xml");
   SSDP.setHTTPPort(80);
   SSDP.setName(SSDP_Name);
-  SSDP.setSerialNumber("001798102201");
+  SSDP.setSerialNumber("001798102202");
   SSDP.setURL("/");
-  SSDP.setModelName("Power swhitcher");
+  SSDP.setModelName("Fish feeder");
   SSDP.setModelNumber("000000000102");
-  SSDP.setModelURL("http://esp8266-arduinoide.ru/step3-ssdp/");
-  SSDP.setManufacturer("Noritsune");
-  SSDP.setManufacturerURL("noritsune.hldns.net");
+  SSDP.setModelURL("https://github.com/lolikuru/ESPruino/tree/fish_feeder");
+  SSDP.setManufacturer("lolikuru");
+  SSDP.setManufacturerURL("");
   SSDP.begin();
 }

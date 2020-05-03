@@ -26,10 +26,7 @@ void FS_init(void) {
   }, handleFileUpload);
   //called when the url is not defined here
   //use it to load content from SPIFFS
-  HTTP.onNotFound([]() {
-    if (!handleFileRead(HTTP.uri()))
-      HTTP.send(404, "text/plain", "FileNotFound");
-  });
+  handleNotFound();
 }
 // Здесь функции для работы с файловой системой
 String getContentType(String filename) {

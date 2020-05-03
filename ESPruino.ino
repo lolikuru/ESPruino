@@ -4,11 +4,13 @@
 #include <FS.h>                 //Содержится в пакете. Видео с уроком http://esp8266-arduinoide.ru/step4-fswebserver
 //                    ПЕРЕДАЧА ДАННЫХ НА WEB СТРАНИЦУ. Видео с уроком http://esp8266-arduinoide.ru/step5-datapages/
 //                    ПЕРЕДАЧА ДАННЫХ С WEB СТРАНИЦЫ.  Видео с уроком http://esp8266-arduinoide.ru/step6-datasend/
-#include <ArduinoJson.h>        //Установить из менеджера библиотек.
+#include <ArduinoJson.h>        //Установить из менеджера библиотек не выше 5.13.5 версии
 //                    ЗАПИСЬ И ЧТЕНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ В ФАЙЛ. Видео с уроком http://esp8266-arduinoide.ru/step7-fileconfig/
 #include <ESP8266HTTPUpdateServer.h>  //Содержится в пакете.
-#include <Stepper.h>
-#include <ArduinoOTA.h>//Прошивка по воздуху
+#include <Stepper.h> //библиотека драйвера шагавого двигателя
+#include <ArduinoOTA.h>//Прошивка по воздуху, выбирать flash size с OTA
+//flesh minimum 4mb
+#include <base64.h>
 
 // Объект для обнавления с web страницы
 ESP8266HTTPUpdateServer httpUpdater;
@@ -18,6 +20,8 @@ const int stepsPerRevolution = 2048;
 
 #include <time.h>
 long start_t;
+String encoded;
+String web_pass = "feedadmin";
 
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
@@ -28,7 +32,9 @@ bool is_authenticated() {
     Serial.print("Found cookie: ");
     String cookie = HTTP.header("Cookie");
     Serial.println(cookie);
-    if (cookie.indexOf("ESPSESSIONID=1") != -1) {
+    SetToken();
+    Serial.println(encoded);
+    if (cookie.indexOf(encoded) != -1) {
       Serial.println("Authentication Successful");
       return true;
     }
@@ -81,7 +87,7 @@ void setup() {
   //Запускаем файловую систему
   Serial.println("Start 4-FS");
   FS_init();
-  Serial.println("Step7-FileConfig");
+  Serial.println("Step 7-FileConfig");
   loadConfig();
   Serial.println("Start 1-WIFI");
   //Запускаем WIFI
@@ -97,9 +103,8 @@ void setup() {
   HTTP_init();
   myStepper.setSpeed(15);
   //Устанавливает скорость шпиндиля
-  Serial.println("Start 8-OTAServer");
+  Serial.println("Start 9-OTAServer");
   StartOTA();
-  
 
 }
 
@@ -107,7 +112,6 @@ void loop() {
   ArduinoOTA.handle();
   HTTP.handleClient();
   delay(1);
-
   if (millis() % 1000 == 0) //счёт времени
     if (tt != millis() / 1000) {
       tt = millis() / 1000;
@@ -122,26 +126,29 @@ void loop() {
         Serial.println(Time.substring(0, 5));
         for (byte l = 0; l < 8; l++) {
           if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
-//            Pinout[l - 1] = 1;
             Serial.println(l);
             saveConfig();
-//            pinShift();
             fish_Feed();
           }
         }
-        last_time=Time.substring(0, 5);
+        if (last_time.substring(0, 3)!=Time.substring(0, 3)){
+          SetToken();
+        }//меняем токен каждый час
+        last_time = Time.substring(0, 5);
       }
     }
+}
+
+void SetToken(void){
+    String toEncode = web_pass + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
+    //Serial.println(toEncode);
+    encoded = "ESPSESSIONID=" + base64::encode(toEncode);
 }
 
 void StepRun(int steps) {
   steps = map(steps,1,360,1,2048);
   while(steps>10){
     myStepper.step(5);
-    //if(steps%50==0) {
-      //  Serial.print("steps:");
-      //  Serial.println(steps);
-   //}
     steps-=5;
     delay(1);// fix driver bug
   }

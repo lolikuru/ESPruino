@@ -15,10 +15,11 @@ void handleLogin() {
   }
   Serial.println(HTTP.hasArg("USERNAME")+"  "+HTTP.hasArg("PASSWORD"));
   if (HTTP.hasArg("USERNAME") && HTTP.hasArg("PASSWORD")) {
-    if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == "admin") {
+    if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == web_pass) {
       HTTP.sendHeader("Location", "/");
       HTTP.sendHeader("Cache-Control", "no-cache");
-      HTTP.sendHeader("Set-Cookie", "ESPSESSIONID=1");
+      SetToken();
+      HTTP.sendHeader("Set-Cookie", encoded);
       //HTTP.sendHeader("Set-Cookie", "expres="+GetDate());
       HTTP.send(301);
       Serial.println("Log in Successful");
@@ -50,4 +51,14 @@ void handleRoot() {
     HTTP.sendHeader("Location", "/fish_feeding.htm");
     HTTP.sendHeader("Cache-Control", "no-cache");
     HTTP.send(301);
+}
+
+bool authCheck(){
+      if (!is_authenticated()) {
+      HTTP.sendHeader("Location", "/login");
+      HTTP.sendHeader("Cache-Control", "no-cache");
+      HTTP.send(301);
+      return false;
+    }
+    return true;
 }

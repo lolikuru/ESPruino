@@ -11,7 +11,7 @@ void timeSynch(int zone){
     Serial.println("");
     int i = 0;
     Serial.println("\nWaiting for time");
-    while (!time(nullptr) && i < 10) {
+    while (time(nullptr) < 50000 && i < 10) {// fix start time
       Serial.print(".");
       i++;
       delay(1000);
