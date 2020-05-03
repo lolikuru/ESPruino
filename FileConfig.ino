@@ -66,6 +66,7 @@ bool saveConfig() {
   json["timezone"] = timezone;
   json["ntp"] = _ntp;
   json["angle"] = rotate_angle;
+  json["dayly_count"] = dayly_count;
   
   for(byte i=0;i<8;i++){
   JsonArray& pins = json.createNestedArray("pin"+String(i));

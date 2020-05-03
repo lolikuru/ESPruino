@@ -22,6 +22,7 @@ const int stepsPerRevolution = 2048;
 long start_t;
 String encoded;
 String web_pass = "feedadmin";
+int dayly_count = 0;
 
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
@@ -128,7 +129,7 @@ void loop() {
           if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
             Serial.println(l);
             saveConfig();
-            fish_Feed();
+            StepRun(rotate_angle.toInt());
           }
         }
         if (last_time.substring(0, 3)!=Time.substring(0, 3)){
@@ -146,6 +147,7 @@ void SetToken(void){
 }
 
 void StepRun(int steps) {
+  dayly_count++;
   steps = map(steps,1,360,1,2048);
   while(steps>10){
     myStepper.step(5);

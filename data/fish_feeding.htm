@@ -14,6 +14,7 @@
 	var alarm_state_on = [0,0,0,0,0,0,0,0];
 	var set_real_time;
 	var angle;
+	var feed_count = 0;
 
 	function createXmlHttpObject(){//создание xml
 	 if(window.XMLHttpRequest){
@@ -196,8 +197,20 @@
 	}
 
 	function feed(submit){
-	  server = "/feed";
-	  send_request(submit,server);
+	  if(feed_count==0) {
+	      server = "/feed";
+	      send_request(submit,server);
+	  } else {
+	    var frase_part = " раз"
+	    if(feed_count >= 2 && feed_count <=4) {
+	      frase_part = " раза";
+	    }
+	  	if(confirm("Вы уже покормили рыб " + feed_count + frase_part)) {
+	      server = "/feed";
+	      send_request(submit,server);
+	    }
+	  }
+	  feed_count++;
 	}
 
 	function sw_load(submit){//подгрузка параметров on/off выходов при старте и включение faid
