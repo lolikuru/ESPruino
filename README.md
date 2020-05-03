@@ -14,10 +14,10 @@ PWM pins Fade\
 # Fish_feed branch (4mb with OTA and spiffs)
 1. delete all pinout confiuration
 2. delete no used icons
-3. delete off alarms
+3. delete off alarms and change on alarms for set feeding time
 4. change device page for feed configurations
-5. add authorise page
-6. change access for all pages
+5. add authentication page
+6. change access for all pages and spiffs
 7. used simple coockies for web pages
 8. add driver for uln2003 drivers
 9. add OTA function for easy firmware download
