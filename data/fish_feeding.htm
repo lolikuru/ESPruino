@@ -68,6 +68,7 @@
 
 	function load_presset(){
 	  datas = JSON.parse(xmlHttp.responseText);
+	  feed_count = datas["dayly_count"];
 	  for (var i = 0;i < 8; i++) {
 	    switch_pos[i] = datas["pin"+i][0];
 	    alarm_on[i] = datas["pin"+i][0];//время включения

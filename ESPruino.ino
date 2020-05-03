@@ -22,7 +22,6 @@ const int stepsPerRevolution = 2048;
 long start_t;
 String encoded;
 String web_pass = "feedadmin";
-int dayly_count = 0;
 
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
@@ -59,6 +58,8 @@ int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
 String rotate_angle = "360";
+
+int dayly_count = 0;
 
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
@@ -135,6 +136,10 @@ void loop() {
         if (last_time.substring(0, 3)!=Time.substring(0, 3)){
           SetToken();
         }//меняем токен каждый час
+        if (Time.substring(0, 5)= "00:00"){
+          dayly_count = 0;
+          saveConfig();//сбрасываем счётчик кормлений за день.
+        }
         last_time = Time.substring(0, 5);
       }
     }
