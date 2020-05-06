@@ -21,7 +21,7 @@ const int stepsPerRevolution = 2048;
 #include <time.h>
 long start_t;
 String encoded;
-String web_pass = "feedadmin";
+//String web_pass = "feedadmin";
 
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
@@ -57,6 +57,7 @@ int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
 String rotate_angle = "360";
+bool WIFI_AP_on = false;
 
 int dayily_count = 0;
 

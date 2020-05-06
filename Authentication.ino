@@ -15,7 +15,7 @@ void handleLogin() {
   }
   Serial.println(HTTP.hasArg("USERNAME")+"  "+HTTP.hasArg("PASSWORD"));
   if (HTTP.hasArg("USERNAME") && HTTP.hasArg("PASSWORD")) {
-    if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == web_pass) {
+    if (HTTP.arg("USERNAME") == "admin" &&  HTTP.arg("PASSWORD") == _passwordAP) {
       HTTP.sendHeader("Location", "/");
       HTTP.sendHeader("Cache-Control", "no-cache");
       HTTP.sendHeader("Set-Cookie", encoded);
@@ -40,7 +40,7 @@ void handleLogin() {
 void handleRoot() {
   Serial.println("Enter handleRoot");
   String header;
-  if (!is_authenticated()) {
+  if (!is_authenticated() && !WIFI_AP_on) {
     HTTP.sendHeader("Location", "/login");
     HTTP.sendHeader("Cache-Control", "no-cache");
     HTTP.send(301);
@@ -52,6 +52,7 @@ void handleRoot() {
 }
 
 bool authCheck(){
+    if(WIFI_AP_on) return true;
       if (!is_authenticated()) {
       HTTP.sendHeader("Location", "/login");
       HTTP.sendHeader("Cache-Control", "no-cache");

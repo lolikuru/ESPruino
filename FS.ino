@@ -49,11 +49,13 @@ String getContentType(String filename) {
 
 bool handleFileRead(String path) {
   String header;
-  if (!is_authenticated() && !path.endsWith("/css/bootstrap.min.css")) {
-    HTTP.sendHeader("Location", "/login");
-    HTTP.sendHeader("Cache-Control", "no-cache");
-    HTTP.send(301);
-    return false;
+  if (!WIFI_AP_on) {
+    if (!is_authenticated() && !path.endsWith("/css/bootstrap.min.css")) {
+      HTTP.sendHeader("Location", "/login");
+      HTTP.sendHeader("Cache-Control", "no-cache");
+      HTTP.send(301);
+      return false;
+    }
   }
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);

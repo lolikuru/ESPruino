@@ -34,6 +34,8 @@ bool StartAPMode() {
   // Меняем режим на режим точки доступа
   WiFi.mode(WIFI_AP);
   // Задаем настройки сети
+  WIFI_AP_on = true;
+  //Выключаем авторизацию в AP режиме
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   // Включаем WIFI в режиме точки доступа с именем и паролем
   // хронящихся в переменных _ssidAP _passwordAP
