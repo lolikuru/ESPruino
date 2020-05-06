@@ -56,7 +56,7 @@ String SSDP_Name = "FishFeeder"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
-String rotate_angle = "360";
+int rotate_angle = 360;
 bool WIFI_AP_on = false;
 
 int dayily_count = 0;
@@ -132,13 +132,13 @@ void loop() {
           if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
             Serial.println(l);
             saveConfig();
-            StepRun(rotate_angle.toInt());
+            StepRun(rotate_angle);
           }
         }
         if (last_time.substring(0, 3)!=Time.substring(0, 3)){
           SetToken();
         }//меняем токен каждый час
-        if (Time.substring(0, 5)= "00:00"){
+        if (Time.substring(0, 5) == "00:00"){
           dayily_count = 0;
           saveConfig();//сбрасываем счётчик кормлений за день.
         }

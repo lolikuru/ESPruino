@@ -34,6 +34,8 @@ bool loadConfig() {
     _ssid = root["ssidName"].as<String>();
     _password = root["ssidPassword"].as<String>();
     _ntp = root["ntp"].as<String>();
+    rotate_angle = root["angle"];
+    dayily_count = root["dayily_count"];
       for(byte i=0;i<8;i++) 
       {//так получаем число и строку в массиве
         //Pinout_name[i] = root["pin"+ String(i)][0].as<String>();

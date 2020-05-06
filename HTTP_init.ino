@@ -41,7 +41,7 @@ void set_Angle(){// set_angle?value=90 утановка угла покорма 
 void fish_Feed(){
     if (authCheck()) {// Проверка токена
      Serial.println("Команда на кормление получена");
-     StepRun(rotate_angle.toInt());
+     StepRun(rotate_angle);
      HTTP.send(200, "text/plain", "OK");
      saveConfig();
     }
