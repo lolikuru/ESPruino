@@ -15,7 +15,7 @@
 ESP8266HTTPUpdateServer httpUpdater;
 
 //Количество шагов на двигателе
-//const int stepsPerRevolution = 2048; 
+//const int stepsPerRevolution = 2048;
 
 #include <time.h>
 long start_t;
@@ -56,6 +56,12 @@ int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
 bool WIFI_AP_on = false;
+
+bool up = false;
+bool down = false;
+int pin_up = 13;
+int pin_down = 12;
+
 //String rotate_angle = "360";
 
 //int dayily_count = 0;
@@ -102,12 +108,17 @@ void setup() {
   //Настраиваем и запускаем HTTP интерфейс
   Serial.println("Start 2-WebServer");
   HTTP_init();
-//  myStepper.setSpeed(15);
+  //  myStepper.setSpeed(15);
   //Устанавливает скорость шпиндиля
   Serial.println("Start 9-OTAServer");
   StartOTA();
   Serial.println("Set 10-SetWebToken");
   SetToken();
+  pinMode(pin_up, OUTPUT);
+  pinMode(pin_down, OUTPUT);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+
 
 }
 
@@ -125,7 +136,7 @@ void loop() {
       int i = Time.indexOf(":");
       Time = Time.substring(i - 2, i + 6);
       //Serial.println(Time);
-      if (last_time!=Time.substring(0, 5)) {
+      if (last_time != Time.substring(0, 5)) {
         Serial.println(Time.substring(0, 5));
         /*for (byte l = 0; l < 8; l++) {
           if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
@@ -133,24 +144,24 @@ void loop() {
             saveConfig();
             StepRun(rotate_angle.toInt());
           }
-        }*/
-        if (last_time.substring(0, 3)!=Time.substring(0, 3)){
+          }*/
+        if (last_time.substring(0, 3) != Time.substring(0, 3)) {
           SetToken();
         }//меняем токен каждый час
         /*if (Time.substring(0, 5)= "00:00"){
           dayily_count = 0;
           saveConfig();//сбрасываем счётчик кормлений за день.
-        }
+          }
         */
         last_time = Time.substring(0, 5);
       }
     }
 }
 
-void SetToken(void){
-    String toEncode = random(1000) + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
-    //Serial.println(toEncode);
-    encoded = "ESPSESSIONID=" + base64::encode(toEncode);
+void SetToken(void) {
+  String toEncode = random(1000) + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
+  //Serial.println(toEncode);
+  encoded = "ESPSESSIONID=" + base64::encode(toEncode);
 }
 
 /*void StepRun(int steps) {
@@ -165,4 +176,20 @@ void SetToken(void){
     digitalWrite(13,LOW);
     digitalWrite(14,LOW);
     digitalWrite(12,LOW);
-}*/
+  }*/
+
+void start_action(String dir) {
+  if (dir == "stop") {
+    digitalWrite(pin_up, LOW);
+    digitalWrite(pin_down, LOW);
+  } else {
+    if (dir == "up") {
+      digitalWrite(2, HIGH);
+      digitalWrite(pin_up, HIGH);
+    } else
+    {
+      digitalWrite(pin_down, HIGH);
+      digitalWrite(2, LOW);
+    }
+  }
+}

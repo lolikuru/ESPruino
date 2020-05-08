@@ -19,3 +19,10 @@ NTP custom adress and configuration timezone\
 8. add OTA function for easy firmware download
 9. commented or deleted all no use functions and parameters
 10. Change control page for simple use up/down motor
+
+*Arduino ide configuration (minimum: 1mb, 256FS, 384 OTA)
+ESP8266 2.6.0 core\
+JSON no higher 5.13.5\
+ESP8266FS-0.4.0\
+base64.h\
+OTA worked\

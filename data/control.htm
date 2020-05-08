@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Управление кормушкой</title>
+	<title>Управление экраном</title>
 		 <script>
 	var xmlHttp=createXmlHttpObject();
 	var switch_pos = [0,0,0,0,0,0,0,0];
@@ -129,6 +129,16 @@
       load();
    }
 
+   function action(submit,dir){
+     server = "/action?move=start&direction="+dir;
+     send_request(submit,server);
+   }
+
+   function stop(submit){
+        server = "/action?move=stop";
+     send_request(submit,server);
+   }
+
 	   function logout(){
      delete_cookie("ESPSESSIONID");
      delete_cookie("expres");
@@ -154,20 +164,25 @@
 							<div class="row"  id="MainButton">
 								<div class="col-md-12">
 									<span class="input-group-btn">
-										<button class="btn btn-default" type="button" onclick="">
+										<button class="btn btn-default" type="button" onclick="action(this,'up');">
 											<img src="/css/images/up.png" ></button>
 									</span>
 									</div>
 								<div class="col-md-12">
 									<span class="input-group-btn">
-								        <button class="btn btn-default" type="button" onclick="">
+								        <button class="btn btn-default" type="button" onclick="stop(this)">
+											<img src="/css/images/stop.png" ></button>
+									</span>
+								</div>
+								<div class="col-md-12">
+									<span class="input-group-btn">
+								        <button class="btn btn-default" type="button" onclick="action(this,'down');">
 											<img src="/css/images/down.png" ></button>
 									</span>
 								</div>
 							</div>
 						 </li>
 					</ul>
-	             <button class="btn btn-block btn-success" id="BackButton" style="display: none;" onclick="hideBox('BackButton');" type="button">Вернуться назад</button>
 				 <input class="btn btn-block btn-default" value="Выход" onclick="logout();" style="margin-top: 0px;" type="submit">
 			</div>
 		</div>

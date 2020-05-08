@@ -1,6 +1,6 @@
 
 void HTTP_init(void) {
-  
+
   HTTP.on("/configs.json", handle_ConfigJSON); // формирование configs.json страницы для передачи данных в web интерфейс
   // API для устройства
   HTTP.on("/ssdp", handle_Set_Ssdp);     // Установить имя SSDP устройства по запросу вида /ssdp?ssdp=proba
@@ -9,11 +9,12 @@ void HTTP_init(void) {
   HTTP.on("/ssid", handle_Set_Ssid);     // Установить имя и пароль роутера по запросу вида /ssid?ssid=home2&password=12345678
   HTTP.on("/ssidap", handle_Set_Ssidap); // Установить имя и пароль для точки доступа по запросу вида /ssidap?ssidAP=home1&passwordAP=8765439
   HTTP.on("/restart", handle_Restart);   // Перезагрузка модуля по запросу вида /restart?device=ok
-//  HTTP.on("/mode", handle_mode);
- // HTTP.on("/set_alarm", handle_Set_Alarm);
- // HTTP.on("/feed",fish_Feed);
- // HTTP.on("/set_angle", set_Angle);
-  
+  HTTP.on("/action", Action);
+  //  HTTP.on("/mode", handle_mode);
+  // HTTP.on("/set_alarm", handle_Set_Alarm);
+  // HTTP.on("/feed",fish_Feed);
+  // HTTP.on("/set_angle", set_Angle);
+
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);
   //HTTP.onNotFound(handleNotFound);
@@ -27,8 +28,25 @@ void HTTP_init(void) {
   // Запускаем HTTP сервер
   HTTP.begin();
 }
+
+void Action() { // action?move=start&direction=up
+  if (authCheck()) {
+    String act = HTTP.arg("move");
+    if (act == "start") {
+      String dir = HTTP.arg("direction");
+      if (dir == "up" || dir == "down") {
+        start_action(dir);
+        HTTP.send(200, "text/plain", "OK");
+      }
+    } else {
+        start_action(act);
+        HTTP.send(200, "text/plain", "OK");
+    }
+
+  }
+}
 /*
-void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
+  void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
   if (authCheck()) {// Проверка токена
     String value = HTTP.arg("value");
     if(value.toInt() > 0 && value.toInt() <= 360){
@@ -37,7 +55,7 @@ void set_Angle(){// set_angle?value=90 утановка угла покорма 
       HTTP.send(200, "text/plain", "OK");
     }
   }
-}
+  }
 */
 /*
   void fish_Feed(){
@@ -47,10 +65,10 @@ void set_Angle(){// set_angle?value=90 утановка угла покорма 
      HTTP.send(200, "text/plain", "OK");
      saveConfig();
     }
-}
+  }
 */
 /*
-void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
+  void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
    if (authCheck()) { // Проверка токена
      String pinout = HTTP.arg("pinout");
       if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on"))){
@@ -64,91 +82,92 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильне
    String alarm = HTTP.arg("alarm_on");
    if(alarm != "") {
     if(pinout.toInt() >= 0 && pinout.toInt() < 8){
-      alarm_time[pinout.toInt()] = alarm;  
+      alarm_time[pinout.toInt()] = alarm;
       saveConfig();
       HTTP.send(200, "text/plain", "OK");
     return;
-    } else{ 
+    } else{
       HTTP.send(406, "text/plain", "alarm_pin_err");
-      return; } 
+      return; }
       alarm = "";
-  } 
+  }
 
-  */
-/*  else 
+*/
+/*  else
     alarm = HTTP.arg("alarm_off");
     if(alarm != ""){
-      Alarm_off[pinout.toInt()] = alarm; 
+      Alarm_off[pinout.toInt()] = alarm;
       saveConfig();
       HTTP.send(200, "text/plain", "OK");
     }else {
       HTTP.send(406, "text/plain", "alarm_pin_err");
     }
-*/  
- //  }
- // }
+*/
+//  }
+// }
 
 // Функции API-Set
 // Установка SSDP имени по запросу вида http://192.168.0.101/ssdp?ssdp=proba
 void handle_Set_Ssdp() {
   if (authCheck()) {// Проверка токена
-    if(HTTP.arg("ssdp") != ""){
+    if (HTTP.arg("ssdp") != "") {
       SSDP_Name = HTTP.arg("ssdp"); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
       saveConfig();                 // Функция сохранения данных во Flash
-      HTTP.send(200, "text/plain", "OK");}
+      HTTP.send(200, "text/plain", "OK");
+    }
     else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
   }
 }
 /*
-void handle_mode() {
+  void handle_mode() {
   for (byte i = 0; i < 3; i++)
-    { 
-      if(HTTP.arg("fadeon" + String(i)) != ""){  
-    
-      if(HTTP.arg("fadeon" + String(i)).toInt()==1||HTTP.arg("fadeon" + String(i)).toInt()==0)  
+    {
+      if(HTTP.arg("fadeon" + String(i)) != ""){
+
+      if(HTTP.arg("fadeon" + String(i)).toInt()==1||HTTP.arg("fadeon" + String(i)).toInt()==0)
       {
-        fadeon[i] = HTTP.arg("fadeon"+String(i)).toInt();  
+        fadeon[i] = HTTP.arg("fadeon"+String(i)).toInt();
         HTTP.send(200, "text/plain", "OK");
       }
       else HTTP.send(406, "text/plain", "fade must be =0 or =1");
       }
-      
-      if(HTTP.arg("bright" + String(i)) != ""){  
-      if(HTTP.arg("bright" + String(i)).toInt()>0&&HTTP.arg("bright" + String(i)).toInt()<256)  
+
+      if(HTTP.arg("bright" + String(i)) != ""){
+      if(HTTP.arg("bright" + String(i)).toInt()>0&&HTTP.arg("bright" + String(i)).toInt()<256)
       {
-        bright[i] = HTTP.arg("bright"+String(i)).toInt(); 
+        bright[i] = HTTP.arg("bright"+String(i)).toInt();
         HTTP.send(200, "text/plain", "OK");
       }
       else HTTP.send(406, "text/plain", "bright must be >0 and <265");
         }
       if(HTTP.arg("amount" + String(i)) != "")
-      if(HTTP.arg("amount" + String(i)).toInt()>0&&HTTP.arg("amount" + String(i)).toInt()<30)  
+      if(HTTP.arg("amount" + String(i)).toInt()>0&&HTTP.arg("amount" + String(i)).toInt()<30)
       {
-        fadeAmount[i] = HTTP.arg("amount"+String(i)).toInt(); 
+        fadeAmount[i] = HTTP.arg("amount"+String(i)).toInt();
         HTTP.send(200, "text/plain", "OK");
       }
       else HTTP.send(406, "text/plain", "amount must be >0 and <30");
-    } 
-    saveConfig(); 
-//    pinShift(); 
-}
+    }
+    saveConfig();
+  //    pinShift();
+  }
 
 
-void handle_Set_Pins() {
+  void handle_Set_Pins() {
   for (byte i = 0; i < 8; i++)
     if (HTTP.arg("pin" + String(i)) == "0"||HTTP.arg("pin" + String(i)) == "1")//москитная сетка
     {
       Pinout[i] = HTTP.arg("pin" + String(i)).toInt();
       saveConfig();
-      
-    }else 
+
+    }else
       if(HTTP.arg("pin" + String(i)) != "")
       {Pinout_name[i] = HTTP.arg("pin" + String(i));
       saveConfig();}
     pinShift();
-    
+
   HTTP.send(200, "text/plain", "OK");
-}
+  }
 */
 void handle_Set_Ntp() {
   if (authCheck()) {// Проверка токена
@@ -207,17 +226,17 @@ void handle_ConfigJSON() {
   json["time"] = GetTime();
   json["date"] = GetDate();
   json["ntp"] = _ntp;
- /* json["angle"] = rotate_angle;
-  json["dayily_count"] = dayily_count;
-  for (byte i = 0; i < 8; i++) {
-  JsonArray& pins = json.createNestedArray("pin"+String(i));
-  //pins.add(Pinout_name[i]);
-  //pins.add(Pinout[i]);
-  pins.add(alarm_time[i]);
-  //pins.add(Alarm_off[i]);
-  pins.add(alarm_state_on[i]);
-  //pins.add(alarm_state_off[i]);
-  }
+  /* json["angle"] = rotate_angle;
+    json["dayily_count"] = dayily_count;
+    for (byte i = 0; i < 8; i++) {
+    JsonArray& pins = json.createNestedArray("pin"+String(i));
+    //pins.add(Pinout_name[i]);
+    //pins.add(Pinout[i]);
+    pins.add(alarm_time[i]);
+    //pins.add(Alarm_off[i]);
+    pins.add(alarm_state_on[i]);
+    //pins.add(alarm_state_off[i]);
+    }
   */
   // Помещаем созданный json в переменную root
   root = "";
