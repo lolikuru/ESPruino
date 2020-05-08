@@ -9,10 +9,10 @@ void HTTP_init(void) {
   HTTP.on("/ssid", handle_Set_Ssid);     // Установить имя и пароль роутера по запросу вида /ssid?ssid=home2&password=12345678
   HTTP.on("/ssidap", handle_Set_Ssidap); // Установить имя и пароль для точки доступа по запросу вида /ssidap?ssidAP=home1&passwordAP=8765439
   HTTP.on("/restart", handle_Restart);   // Перезагрузка модуля по запросу вида /restart?device=ok
-  //HTTP.on("/mode", handle_mode);
-  HTTP.on("/set_alarm", handle_Set_Alarm);
-  HTTP.on("/feed",fish_Feed);
-  HTTP.on("/set_angle", set_Angle);
+//  HTTP.on("/mode", handle_mode);
+ // HTTP.on("/set_alarm", handle_Set_Alarm);
+ // HTTP.on("/feed",fish_Feed);
+ // HTTP.on("/set_angle", set_Angle);
   
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);
@@ -27,6 +27,7 @@ void HTTP_init(void) {
   // Запускаем HTTP сервер
   HTTP.begin();
 }
+/*
 void set_Angle(){// set_angle?value=90 утановка угла покорма рыбы
   if (authCheck()) {// Проверка токена
     String value = HTTP.arg("value");
@@ -37,8 +38,9 @@ void set_Angle(){// set_angle?value=90 утановка угла покорма 
     }
   }
 }
-
-void fish_Feed(){
+*/
+/*
+  void fish_Feed(){
     if (authCheck()) {// Проверка токена
      Serial.println("Команда на кормление получена");
      StepRun(rotate_angle);
@@ -46,7 +48,8 @@ void fish_Feed(){
      saveConfig();
     }
 }
-
+*/
+/*
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильнег
    if (authCheck()) { // Проверка токена
      String pinout = HTTP.arg("pinout");
@@ -70,6 +73,8 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильне
       return; } 
       alarm = "";
   } 
+
+  */
 /*  else 
     alarm = HTTP.arg("alarm_off");
     if(alarm != ""){
@@ -80,8 +85,8 @@ void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_state_on=60 будильне
       HTTP.send(406, "text/plain", "alarm_pin_err");
     }
 */  
-   }
-  }
+ //  }
+ // }
 
 // Функции API-Set
 // Установка SSDP имени по запросу вида http://192.168.0.101/ssdp?ssdp=proba
@@ -202,7 +207,7 @@ void handle_ConfigJSON() {
   json["time"] = GetTime();
   json["date"] = GetDate();
   json["ntp"] = _ntp;
-  json["angle"] = rotate_angle;
+ /* json["angle"] = rotate_angle;
   json["dayily_count"] = dayily_count;
   for (byte i = 0; i < 8; i++) {
   JsonArray& pins = json.createNestedArray("pin"+String(i));
@@ -213,6 +218,7 @@ void handle_ConfigJSON() {
   pins.add(alarm_state_on[i]);
   //pins.add(alarm_state_off[i]);
   }
+  */
   // Помещаем созданный json в переменную root
   root = "";
   json.printTo(root);

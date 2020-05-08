@@ -46,7 +46,7 @@ void handleRoot() {
     HTTP.send(301);
     return;
   }
-    HTTP.sendHeader("Location", "/fish_feeding.htm");
+    HTTP.sendHeader("Location", "/control.htm");
     HTTP.sendHeader("Cache-Control", "no-cache");
     HTTP.send(301);
 }

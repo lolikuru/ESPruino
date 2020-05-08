@@ -7,16 +7,15 @@
 #include <ArduinoJson.h>        //Установить из менеджера библиотек не выше 5.13.5 версии
 //                    ЗАПИСЬ И ЧТЕНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ В ФАЙЛ. Видео с уроком http://esp8266-arduinoide.ru/step7-fileconfig/
 #include <ESP8266HTTPUpdateServer.h>  //Содержится в пакете.
-#include <Stepper.h> //библиотека драйвера шагавого двигателя
+//#include <Stepper.h> //библиотека драйвера шагавого двигателя
 #include <ArduinoOTA.h>//Прошивка по воздуху, выбирать flash size с OTA
-//flesh minimum 4mb
 #include <base64.h>
 
 // Объект для обнавления с web страницы
 ESP8266HTTPUpdateServer httpUpdater;
 
 //Количество шагов на двигателе
-const int stepsPerRevolution = 2048; 
+//const int stepsPerRevolution = 2048; 
 
 #include <time.h>
 long start_t;
@@ -45,28 +44,28 @@ bool is_authenticated() {
 // Для файловой системы
 File fsUploadFile;
 
-Stepper myStepper(stepsPerRevolution, 4, 13, 14, 12);
+//Stepper myStepper(stepsPerRevolution, 4, 13, 14, 12);
 
 // Определяем переменные wifi
 String _ssid     = "Saya"; // Для хранения SSID
 String _password = "markiz18"; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
-String SSDP_Name = "FishFeeder"; // Имя SSDP
+String SSDP_Name = "WhiteControl"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
 String _ntp = "192.168.1.39"; //сервер времени
 String last_time = "";
-int rotate_angle = 360;
 bool WIFI_AP_on = false;
+//String rotate_angle = "360";
 
-int dayily_count = 0;
+//int dayily_count = 0;
 
 //byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 //int shifter_a = 0; //бит переключение 74hc595
 //String Pinout_name[8] = {"Pin1", "Pin2", "Pin3", "Pin4", "Pin5", "Pin6", "Pin7", "Pin8"}; //Названия выводов
-String alarm_time[8] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
+//String alarm_time[8] = {"00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00"}; //время включения
 //String Alarm_off[8] = {"23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59", "23:59"}; //время выключения
-String alarm_state_on[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
+//String alarm_state_on[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //включена
 //String alarm_state_off[8] = {"OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF", "OFF"}; //или выключена настройка
 
 
@@ -103,7 +102,7 @@ void setup() {
   //Настраиваем и запускаем HTTP интерфейс
   Serial.println("Start 2-WebServer");
   HTTP_init();
-  myStepper.setSpeed(15);
+//  myStepper.setSpeed(15);
   //Устанавливает скорость шпиндиля
   Serial.println("Start 9-OTAServer");
   StartOTA();
@@ -128,20 +127,21 @@ void loop() {
       //Serial.println(Time);
       if (last_time!=Time.substring(0, 5)) {
         Serial.println(Time.substring(0, 5));
-        for (byte l = 0; l < 8; l++) {
+        /*for (byte l = 0; l < 8; l++) {
           if (alarm_state_on[l] == "ON" && alarm_time[l] == Time.substring(0, 5)) {
             Serial.println(l);
             saveConfig();
-            StepRun(rotate_angle);
+            StepRun(rotate_angle.toInt());
           }
-        }
+        }*/
         if (last_time.substring(0, 3)!=Time.substring(0, 3)){
           SetToken();
         }//меняем токен каждый час
-        if (Time.substring(0, 5) == "00:00"){
+        /*if (Time.substring(0, 5)= "00:00"){
           dayily_count = 0;
           saveConfig();//сбрасываем счётчик кормлений за день.
         }
+        */
         last_time = Time.substring(0, 5);
       }
     }
@@ -153,7 +153,7 @@ void SetToken(void){
     encoded = "ESPSESSIONID=" + base64::encode(toEncode);
 }
 
-void StepRun(int steps) {
+/*void StepRun(int steps) {
   dayily_count++;
   steps = map(steps,1,360,1,2048);
   while(steps>10){
@@ -165,4 +165,4 @@ void StepRun(int steps) {
     digitalWrite(13,LOW);
     digitalWrite(14,LOW);
     digitalWrite(12,LOW);
-}
+}*/

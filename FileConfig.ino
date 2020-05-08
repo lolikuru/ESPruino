@@ -34,7 +34,7 @@ bool loadConfig() {
     _ssid = root["ssidName"].as<String>();
     _password = root["ssidPassword"].as<String>();
     _ntp = root["ntp"].as<String>();
-    rotate_angle = root["angle"];
+/*    rotate_angle = root["angle"];
     dayily_count = root["dayily_count"];
       for(byte i=0;i<8;i++) 
       {//так получаем число и строку в массиве
@@ -50,6 +50,7 @@ bool loadConfig() {
        // bright[i] = root["bright"+ String(i)];
        // fadeAmount[i] = root["amount"+ String(i)];
        // }
+*/
     return true;
 }
 
@@ -67,9 +68,9 @@ bool saveConfig() {
   json["ssidPassword"] = _password;
   json["timezone"] = timezone;
   json["ntp"] = _ntp;
-  json["angle"] = rotate_angle;
-  json["dayily_count"] = dayily_count;
-  
+//  json["angle"] = rotate_angle;
+//  json["dayily_count"] = dayily_count;
+/*  
   for(byte i=0;i<8;i++){
   JsonArray& pins = json.createNestedArray("pin"+String(i));
 //  pins.add(Pinout_name[i]);
@@ -80,6 +81,7 @@ bool saveConfig() {
   pins.add(alarm_state_on[i]);
 //  pins.add(alarm_state_off[i]);
   }
+  */
   /*
   for(byte i=0;i<3;i++){
   json["fadeon"+String(i)] = fadeon[i];

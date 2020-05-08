@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+ <head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Управление кормушкой</title>
+		 <script>
+	var xmlHttp=createXmlHttpObject();
+	var switch_pos = [0,0,0,0,0,0,0,0];
+	//var alarm_on = [,,,,,,,];
+	//var alarm_state_on = [0,0,0,0,0,0,0,0];
+	var set_real_time;
+	//var angle;
+	//var feed_count;
+
+	function createXmlHttpObject(){//создание xml
+	 if(window.XMLHttpRequest){
+	  xmlHttp=new XMLHttpRequest();
+	 }else{
+	  xmlHttp=new ActiveXObject('Microsoft.XMLHTTP');
+	 }
+	 return xmlHttp;
+	}
+	function load(){//получение xml и парсинг в json
+	 if(xmlHttp.readyState==0 || xmlHttp.readyState==4){
+	  xmlHttp.open('GET','/configs.json',true);
+	  xmlHttp.send(null);
+	  xmlHttp.onload = function(e) {
+	   jsonResponse=JSON.parse(xmlHttp.response);
+	   loadBlock();
+	  }
+	 }
+	}
+
+	function loadBlock(data2) {//замена значений в html
+		data2 = JSON.parse(xmlHttp.responseText);
+		data = document.getElementsByTagName('body')[0].innerHTML;
+		var new_string;
+		//console.log(data2);
+		for (var key in data2)
+			{//console.log(typeof data2[key]);
+			if(typeof data2[key] != 'object' && typeof data2[key] != 'number'){//строки
+			new_string = data.replace(new RegExp('{{'+key+'}}', 'g'), data2[key]);
+			data = new_string;}
+			else {if(typeof data2[key] == 'object'){//если это массивы
+					for(var item in data2[key]){
+							//console.log(data2[key]) // раскоментить для просмотра замены
+							//console.log('{{'+key+'_'+item+'}}');
+							new_string = data.replace(new RegExp('{{'+key+'_'+item+'}}', 'g'), data2[key][item]);
+							data = new_string;
+							}
+						}//и если просто номера
+						if(typeof data2[key] == 'number'){
+						new_string = data.replace(new RegExp('{{'+key+'}}', 'g'), data2[key]);
+							data = new_string;
+						}
+				}
+			}
+
+		document.getElementsByTagName('body')[0].innerHTML = new_string;
+		handleServerResponse();
+		last();
+	}
+
+	function val(id){
+	 var v = document.getElementById(id).value;
+	 return v;
+	}
+	function send_request(submit,server){
+	 request = new XMLHttpRequest();
+	 request.open("GET", server, true);
+	 request.send();
+	 save_status(submit,request);
+	}
+	function save_status(submit,request){
+	 old_submit = submit.value;
+	 request.onreadystatechange = function() {
+	  if (request.readyState != 4) return;
+	  submit.value = request.responseText;
+	  setTimeout(function(){
+	   submit.value=old_submit;
+	   submit_disabled(false);
+	  }, 1000);
+	 }
+	 submit.value = 'Подождите...';
+	 submit_disabled(true);
+	}
+	function submit_disabled(request){
+	 var inputs = document.getElementsByTagName("input");
+	 for (var i = 0; i < inputs.length; i++) {
+	  if (inputs[i].type === 'submit') {inputs[i].disabled = request;}
+	 }
+	}
+
+	function last(){//показ элементов после загрузки
+	//sw_load(document.getElementById("pinload"));
+	var page = document.getElementsByClassName("container")[0];
+	page.setAttribute("style", "display:block;");
+	}
+
+	function real_time(hours,min,sec) {//отсчет времени
+   sec=Number(sec)+1;
+    if (sec>=60){min=Number(min)+1;sec=0;
+	if(min!=0){
+	//auto_alarm(hours,min);//проверка алармов
+	}
+	}
+    if (min>=60){
+	hours=Number(hours)+1;
+	min=0;
+	//auto_alarm(hours,min);
+	}
+    if (hours>=24){hours=0};
+    document.getElementById("time").innerHTML = hours+":"+min+":"+sec;
+    set_real_time = setTimeout("real_time("+hours+","+min+","+sec+");", 1000);
+   }
+	function handleServerResponse(){//получение времени
+    clearTimeout(set_real_time);
+    var res = jsonResponse.time.split(":");
+    real_time(hours=res[0],min=res[1],sec=res[2]);
+    document.body.style.backgroundColor="rgb("+jsonResponse.rgb+")";
+   }
+
+    function load_time(submit){//установка времени
+      server = "/Time";
+      send_request(submit,server);
+      load();
+   }
+
+	   function logout(){
+     delete_cookie("ESPSESSIONID");
+     delete_cookie("expres");
+     document.location.replace("/login");
+   }
+   function delete_cookie ( cookie_name ){
+     var cookie_date = new Date ( );  // Текущая дата и время
+     cookie_date.setTime ( cookie_date.getTime() - 1 );
+     document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+   }
+   </script>
+</head>
+<body onload="load();">
+  <div class="container" style="display:none;">
+	   <div class="row" style="text-align:center;">
+		<h1 style="margin:10px;">Управление экраном</h1>
+		<h2><span class="label label-info" id="time">{{time}}</span>
+		</h2>
+			<div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+				<a class="btn btn-block btn-danger" href="/index.htm">Страница настройки</a>
+					<ul class="list-group col-6" style="margin-bottom:0px;">
+						<li id="devlist" class="list-group-item"">
+							<div class="row"  id="MainButton">
+								<div class="col-md-12">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" onclick="">
+											<img src="/css/images/up.png" ></button>
+									</span>
+									</div>
+								<div class="col-md-12">
+									<span class="input-group-btn">
+								        <button class="btn btn-default" type="button" onclick="">
+											<img src="/css/images/down.png" ></button>
+									</span>
+								</div>
+							</div>
+						 </li>
+					</ul>
+	             <button class="btn btn-block btn-success" id="BackButton" style="display: none;" onclick="hideBox('BackButton');" type="button">Вернуться назад</button>
+				 <input class="btn btn-block btn-default" value="Выход" onclick="logout();" style="margin-top: 0px;" type="submit">
+			</div>
+		</div>
+	</div>
+</body>
+<!-- <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script>
+window.onload = function() {
+    alert( 'Документ и все ресурсы загружены' );
+  };
+  </script> -->
+</html>
