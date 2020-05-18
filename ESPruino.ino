@@ -118,7 +118,10 @@ void setup() {
   pinMode(pin_down, OUTPUT);
   pinMode(2, OUTPUT);
   digitalWrite(2, LOW);
-
+  delay(1000);
+  digitalWrite(2, HIGH);
+  digitalWrite(pin_up, LOW);
+  digitalWrite(pin_down, LOW);
 
 }
 
@@ -184,12 +187,14 @@ void start_action(String dir) {
     digitalWrite(pin_down, LOW);
   } else {
     if (dir == "up") {
-      digitalWrite(2, HIGH);
       digitalWrite(pin_up, HIGH);
+      delay(300);
+      digitalWrite(pin_down, LOW);
     } else
-    {
+    { 
       digitalWrite(pin_down, HIGH);
-      digitalWrite(2, LOW);
+      delay(300);
+      digitalWrite(pin_up, LOW);
     }
   }
 }
