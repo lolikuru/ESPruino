@@ -147,18 +147,18 @@ void loop() {
     }
 
 
-  for (byte l = 0; l < 3; l++){
-    if (fadeon[l] == 1) {
-      if (Pinout[l] == 1)
-        Serial.println("Faid"+l);
-        //faid_0(l);
-    }
-    else if (brightness[l] != 0) {
-      brightness[l] = 0;
-      analogWrite(led[l], 0);
-      digitalWrite(led[l], HIGH);
-    }
-  }
+//  for (byte l = 0; l < 3; l++){
+//    if (fadeon[l] == 1) {
+//      if (Pinout[l] == 1)
+//        Serial.println("Faid");
+//        faid_0(l);
+//    }
+//    else if (brightness[l] != 0) {
+//      brightness[l] = 0;
+//      analogWrite(led[l], 0);
+//      digitalWrite(led[l], HIGH);
+//    }
+//  }
 }
 
 
