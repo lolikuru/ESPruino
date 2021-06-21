@@ -26,10 +26,7 @@ void FS_init(void) {
   }, handleFileUpload);
   //called when the url is not defined here
   //use it to load content from SPIFFS
-  HTTP.onNotFound([]() {
-    if (!handleFileRead(HTTP.uri()))
-      HTTP.send(404, "text/plain", "FileNotFound");
-  });
+  handleNotFound();
 }
 // Здесь функции для работы с файловой системой
 String getContentType(String filename) {
@@ -51,6 +48,15 @@ String getContentType(String filename) {
 }
 
 bool handleFileRead(String path) {
+  String header;
+  if (!WIFI_AP_on) {
+    if (!is_authenticated() && !path.endsWith("/css/bootstrap.min.css")) {
+      HTTP.sendHeader("Location", "/login");
+      HTTP.sendHeader("Cache-Control", "no-cache");
+      HTTP.send(301);
+      return false;
+    }
+  }
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
@@ -137,4 +143,21 @@ void handleFileList() {
   HTTP.send(200, "text/json", output);
 }
 
-
+void handleNotFound() {
+    HTTP.onNotFound([]() {
+      if (!handleFileRead(HTTP.uri())){
+        String message = "File Not Found\n\n";
+        message += "URI: ";
+        message += HTTP.uri();
+        message += "\nMethod: ";
+        message += (HTTP.method() == HTTP_GET) ? "GET" : "POST";
+        message += "\nArguments: ";
+        message += HTTP.args();
+        message += "\n";
+        for (uint8_t i = 0; i < HTTP.args(); i++) {
+          message += " " + HTTP.argName(i) + ": " + HTTP.arg(i) + "\n";
+        }
+        HTTP.send(404, "text/plain", message);
+      }
+    });
+}

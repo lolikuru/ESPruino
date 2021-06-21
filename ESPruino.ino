@@ -8,27 +8,50 @@
 //                    ЗАПИСЬ И ЧТЕНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ В ФАЙЛ. Видео с уроком http://esp8266-arduinoide.ru/step7-fileconfig/
 #include <ESP8266HTTPUpdateServer.h>  //Содержится в пакете.
 
+#include <ArduinoOTA.h>//Прошивка по воздуху, выбирать flash size с OTA
+//flesh minimum 4mb
+#include <base64.h>
+
 // Объект для обнавления с web страницы
 ESP8266HTTPUpdateServer httpUpdater;
 
 #include <time.h>
 long start_t;
+String encoded;
 
 // Web интерфейс для устройства
 ESP8266WebServer HTTP;
+
+
+bool is_authenticated() {
+  Serial.println("Enter is_authenticated");
+  if (HTTP.hasHeader("Cookie")) {
+    Serial.print("Found cookie: ");
+    String cookie = HTTP.header("Cookie");
+    Serial.println(cookie);
+    Serial.println(encoded);
+    if (cookie.indexOf(encoded) != -1) {
+      Serial.println("Authentication Successful");
+      return true;
+    }
+  }
+  Serial.println("Authentication Failed");
+  return false;
+}
 
 // Для файловой системы
 File fsUploadFile;
 
 // Определяем переменные wifi
-String _ssid     = ""; // Для хранения SSID
-String _password = ""; // Для хранения пароля сети
+String _ssid     = "Saya5G"; // Для хранения SSID
+String _password = "markiz18"; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
 String SSDP_Name = "Update"; // Имя SSDP
 int timezone = 4;               // часовой пояс GTM
-String _ntp = "192.168.1.5"; //сервер времени
+String _ntp = "192.168.1.1"; //сервер времени
 String last_time = "";
+bool WIFI_AP_on = false;
 
 byte Pinout[8] = {1, 0, 0, 0, 0, 0, 0, 0}; //статус включения вывода(виртуального)
 int shifter_a = 0; //бит переключение 74hc595
@@ -60,8 +83,6 @@ void setup() {
   FS_init();
   Serial.println("Step7-FileConfig");
   loadConfig();
-
-
   Serial.println("Start 1-WIFI");
   //Запускаем WIFI
   WIFIinit();
@@ -74,6 +95,10 @@ void setup() {
   //Настраиваем и запускаем HTTP интерфейс
   Serial.println("Start 2-WebServer");
   HTTP_init();
+  Serial.println("Start 9-OTAServer");
+  StartOTA();
+  Serial.println("Set 10-SetWebToken");
+  SetToken();
 
   for (byte l = 0; l < 7; l++) {
     pinMode(led[l], OUTPUT);
@@ -82,6 +107,7 @@ void setup() {
 }
 
 void loop() {
+  ArduinoOTA.handle();
   HTTP.handleClient();
   delay(1);
 
@@ -113,27 +139,34 @@ void loop() {
             Serial.println("OFF");
           }
         }
+        if (last_time.substring(0, 3)!=Time.substring(0, 3)){
+          SetToken();
+        }//меняем токен каждый час
         last_time=Time.substring(0, 5);
       }
     }
 
 
-
-  for (byte l = 0; l < 3; l++)
+  for (byte l = 0; l < 3; l++){
     if (fadeon[l] == 1) {
       if (Pinout[l] == 1)
-        faid_0(l);
+        Serial.println("Faid"+l);
+        //faid_0(l);
     }
     else if (brightness[l] != 0) {
       brightness[l] = 0;
       analogWrite(led[l], 0);
       digitalWrite(led[l], HIGH);
     }
+  }
 }
 
 
-
-
+void SetToken(void){
+    String toEncode = random(1000) + GetTime().substring(0, 2) + GetDate();//токен меняется каждый час
+    //Serial.println(toEncode);
+    encoded = "ESPSESSIONID=" + base64::encode(toEncode);
+}
 
 void pinShift() { //включение pinout + 74hc595 ttl
   shifter_a = 0;

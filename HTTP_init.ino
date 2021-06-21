@@ -15,130 +15,154 @@ void HTTP_init(void) {
   // Добавляем функцию Update для перезаписи прошивки по WiFi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);
   // Запускаем HTTP сервер
+  //HTTP.onNotFound(handleNotFound);
+  //here the list of headers to be recorded
+  const char * headerkeys[] = {"User-Agent", "Cookie"} ;
+  size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
+  //ask HTTP to track these headers
+  HTTP.collectHeaders(headerkeys, headerkeyssize);
+  HTTP.on("/", handleRoot);
+  HTTP.on("/login", handleLogin);
+  // Запускаем HTTP сервер
   HTTP.begin();
 }
 void handle_Set_Alarm(){// set_alarm?pinout=1&alarm_on=60 будильнег
-   String pinout = HTTP.arg("pinout");
- if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on")||HTTP.arg("alarm_state_off"))){
-  if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
-  if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
-  if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
-  if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
- }
-   String alarm = HTTP.arg("alarm_on");
- if(alarm != "") {
-  if(pinout.toInt() >= 0 && pinout.toInt() < 8){
-    Alarm_on[pinout.toInt()] = alarm;  
-    saveConfig();
-    HTTP.send(200, "text/plain", "OK");
-    return;
+  if (authCheck()) {// Проверка токена
+    String pinout = HTTP.arg("pinout");
+    if(pinout.toInt() >= 0 && pinout.toInt() < 8&&(HTTP.arg("alarm_state_on")||HTTP.arg("alarm_state_off"))){
+    if(HTTP.arg("alarm_state_on")=="ON")alarm_state_on[pinout.toInt()] = "ON";
+    if(HTTP.arg("alarm_state_on")=="OFF")alarm_state_on[pinout.toInt()] = "OFF";
+    if(HTTP.arg("alarm_state_off")=="ON")alarm_state_off[pinout.toInt()] = "ON";
+    if(HTTP.arg("alarm_state_off")=="OFF")alarm_state_off[pinout.toInt()] = "OFF";
+      saveConfig();
+      HTTP.send(200, "text/plain", "OK");
+    }
+    String alarm = HTTP.arg("alarm_on");
+  if(alarm != "") {
+    if(pinout.toInt() >= 0 && pinout.toInt() < 8){
+      Alarm_on[pinout.toInt()] = alarm;  
+      saveConfig();
+      HTTP.send(200, "text/plain", "OK");
+      return;
     } else{ 
       HTTP.send(406, "text/plain", "alarm_pin_err");
-      return; } 
+      return; 
+      } 
       alarm = "";
- } else 
+    } else 
     alarm = HTTP.arg("alarm_off");
     if(alarm != ""){
     Alarm_off[pinout.toInt()] = alarm; 
     saveConfig();
     HTTP.send(200, "text/plain", "OK");
-    }else {
+    }
+    else {
     HTTP.send(406, "text/plain", "alarm_pin_err");
     }
-    
-    
-   
   }
+}
 
 // Функции API-Set
 // Установка SSDP имени по запросу вида http://192.168.0.101/ssdp?ssdp=proba
 void handle_Set_Ssdp() {
-  if(HTTP.arg("ssdp") != ""){
-  SSDP_Name = HTTP.arg("ssdp"); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
-  saveConfig();                 // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");}
-  else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    if(HTTP.arg("ssdp") != ""){
+    SSDP_Name = HTTP.arg("ssdp"); // Получаем значение ssdp из запроса сохраняем в глобальной переменной
+    saveConfig();                 // Функция сохранения данных во Flash
+    HTTP.send(200, "text/plain", "OK");}
+    else HTTP.send(406, "text/plain", "Name ERRoR");// отправляем ответ о выполнении
+  }
 }
 void handle_mode() {
-  for (byte i = 0; i < 3; i++)
-    { 
-      if(HTTP.arg("fadeon" + String(i)) != ""){  
-    
-      if(HTTP.arg("fadeon" + String(i)).toInt()==1||HTTP.arg("fadeon" + String(i)).toInt()==0)  
+  if (authCheck()) {// Проверка токена
+    for (byte i = 0; i < 3; i++)
       {
-        fadeon[i] = HTTP.arg("fadeon"+String(i)).toInt();  
-        HTTP.send(200, "text/plain", "OK");
-      }
-      else HTTP.send(406, "text/plain", "fade must be =0 or =1");
-      }
+        if(HTTP.arg("fadeon" + String(i)) != ""){  
       
-      if(HTTP.arg("bright" + String(i)) != ""){  
-      if(HTTP.arg("bright" + String(i)).toInt()>0&&HTTP.arg("bright" + String(i)).toInt()<256)  
-      {
-        bright[i] = HTTP.arg("bright"+String(i)).toInt(); 
-        HTTP.send(200, "text/plain", "OK");
-      }
-      else HTTP.send(406, "text/plain", "bright must be >0 and <265");
+        if(HTTP.arg("fadeon" + String(i)).toInt()==1||HTTP.arg("fadeon" + String(i)).toInt()==0)  
+        {
+          fadeon[i] = HTTP.arg("fadeon"+String(i)).toInt();  
+          HTTP.send(200, "text/plain", "OK");
         }
-      if(HTTP.arg("amount" + String(i)) != "")
-      if(HTTP.arg("amount" + String(i)).toInt()>0&&HTTP.arg("amount" + String(i)).toInt()<30)  
-      {
-        fadeAmount[i] = HTTP.arg("amount"+String(i)).toInt(); 
-        HTTP.send(200, "text/plain", "OK");
-      }
-      else HTTP.send(406, "text/plain", "amount must be >0 and <30");
-    } 
-    saveConfig(); 
-    pinShift(); 
+        else HTTP.send(406, "text/plain", "fade must be =0 or =1");
+        }
+        
+        if(HTTP.arg("bright" + String(i)) != ""){  
+        if(HTTP.arg("bright" + String(i)).toInt()>0&&HTTP.arg("bright" + String(i)).toInt()<256)  
+        {
+          bright[i] = HTTP.arg("bright"+String(i)).toInt(); 
+          HTTP.send(200, "text/plain", "OK");
+        }
+        else HTTP.send(406, "text/plain", "bright must be >0 and <265");
+          }
+        if(HTTP.arg("amount" + String(i)) != "")
+        if(HTTP.arg("amount" + String(i)).toInt()>0&&HTTP.arg("amount" + String(i)).toInt()<30)  
+        {
+          fadeAmount[i] = HTTP.arg("amount"+String(i)).toInt(); 
+          HTTP.send(200, "text/plain", "OK");
+        }
+        else HTTP.send(406, "text/plain", "amount must be >0 and <30");
+      } 
+      saveConfig(); 
+      pinShift(); 
+  }
 }
 
 
 void handle_Set_Pins() {
-  for (byte i = 0; i < 8; i++)
-    if (HTTP.arg("pin" + String(i)) == "0"||HTTP.arg("pin" + String(i)) == "1")//москитная сетка
-    {
-      Pinout[i] = HTTP.arg("pin" + String(i)).toInt();
-      saveConfig();
+  if (authCheck()) {// Проверка токена
+    for (byte i = 0; i < 8; i++)
+      if (HTTP.arg("pin" + String(i)) == "0"||HTTP.arg("pin" + String(i)) == "1")//москитная сетка
+      {
+        Pinout[i] = HTTP.arg("pin" + String(i)).toInt();
+        saveConfig();
+        
+      }else 
+        if(HTTP.arg("pin" + String(i)) != "")
+        {Pinout_name[i] = HTTP.arg("pin" + String(i));
+        saveConfig();}
+      pinShift();
       
-    }else 
-      if(HTTP.arg("pin" + String(i)) != "")
-      {Pinout_name[i] = HTTP.arg("pin" + String(i));
-      saveConfig();}
-    pinShift();
-    
-  HTTP.send(200, "text/plain", "OK");
+    HTTP.send(200, "text/plain", "OK");
+  }
 }
 void handle_Set_Ntp() {
-  _ntp = HTTP.arg("ntp");
-  timeSynch(timezone);
-  saveConfig();
-  HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    _ntp = HTTP.arg("ntp");
+    timeSynch(timezone);
+    saveConfig();
+    HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
+  }
 }
 // Установка параметров для подключения к внешней AP по запросу вида http://192.168.0.101/ssid?ssid=home2&password=12345678
 void handle_Set_Ssid() {
-  _ssid = HTTP.arg("ssid");            // Получаем значение ssid из запроса сохраняем в глобальной переменной
-  _password = HTTP.arg("password");    // Получаем значение password из запроса сохраняем в глобальной переменной
-  saveConfig();                        // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  if (authCheck()) {// Проверка токена
+    _ssid = HTTP.arg("ssid");            // Получаем значение ssid из запроса сохраняем в глобальной переменной
+    _password = HTTP.arg("password");    // Получаем значение password из запроса сохраняем в глобальной переменной
+    saveConfig();                        // Функция сохранения данных во Flash
+    HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  }
 }
 //Установка параметров внутренней точки доступа по запросу вида http://192.168.0.101/ssidap?ssidAP=home1&passwordAP=8765439
-void handle_Set_Ssidap() {              //
-  _ssidAP = HTTP.arg("ssidAP");         // Получаем значение ssidAP из запроса сохраняем в глобальной переменной
-  _passwordAP = HTTP.arg("passwordAP"); // Получаем значение passwordAP из запроса сохраняем в глобальной переменной
-  saveConfig();                         // Функция сохранения данных во Flash
-  HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+void handle_Set_Ssidap() {
+  if (authCheck()) {// Проверка токена
+    _ssidAP = HTTP.arg("ssidAP");         // Получаем значение ssidAP из запроса сохраняем в глобальной переменной
+    _passwordAP = HTTP.arg("passwordAP"); // Получаем значение passwordAP из запроса сохраняем в глобальной переменной
+    saveConfig();                         // Функция сохранения данных во Flash
+    HTTP.send(200, "text/plain", "OK");   // отправляем ответ о выполнении
+  }
 }
 // Перезагрузка модуля по запросу вида http://192.168.0.101/restart?device=ok
 void handle_Restart() {
-  String restart = HTTP.arg("device");          // Получаем значение device из запроса
-  if (restart == "ok") {                         // Если значение равно Ок
-    HTTP.send(200, "text / plain", "Reset OK"); // Oтправляем ответ Reset OK
-    ESP.restart();                                // перезагружаем модуль
-  }
-  else {                                        // иначе
-    HTTP.send(200, "text / plain", "No Reset"); // Oтправляем ответ No Reset
+  if (authCheck()) {// Проверка токена
+    String restart = HTTP.arg("device");          // Получаем значение device из запроса
+    if (restart == "ok") {                         // Если значение равно Ок
+      HTTP.send(200, "text / plain", "Reset OK"); // Oтправляем ответ Reset OK
+      ESP.restart();                                // перезагружаем модуль
+    }
+    else {                                        // иначе
+      HTTP.send(200, "text / plain", "No Reset"); // Oтправляем ответ No Reset
+    }
   }
 }
 
@@ -180,7 +204,3 @@ void handle_ConfigJSON() {
   json.printTo(root);
   HTTP.send(200, "text/json", root);
 }
-
-
-
-
