@@ -77,11 +77,11 @@
 	if(datas["pin"+i][4]=='ON') time_button('',i,'ON');
 	if(datas["pin"+i][5]=='ON') time_button('',i,'OFF');
 	}
-	for (var i = 0;i < 3; i++) {
-	fadeon[i] = datas["fadeon"+i];
-	bright[i] = datas["bright"+i];
-	amount[i] = datas["amount"+i];
-	}
+	//for (var i = 0;i < 3; i++) {
+	//fadeon[i] = datas["fadeon"+i];
+	//bright[i] = datas["bright"+i];
+	//amount[i] = datas["amount"+i];
+	//}
 	}
 
 	function val(id){
@@ -245,9 +245,9 @@
     server = "/pins?pin0="+switch_pos[0]+"&pin1="+switch_pos[1]+"&pin2="+switch_pos[2]+"&pin3="+switch_pos[3]+"&pin4="+switch_pos[4]+"&pin5="+switch_pos[5]+"&pin6="+switch_pos[6];
 	send_request(submit,server);
 	
-	for (var i = 1; i < 4; i++) {//чтение из памяти
-	fadecheck(i,fadeon[i-1]);
-	}
+	//for (var i = 1; i < 4; i++) {//чтение из памяти
+	//fadecheck(i,fadeon[i-1]);
+	//}
     server = "/mode?fadeon0="+fadeon[0]+"&fadeon1="+fadeon[1]+"&fadeon2="+fadeon[2];
 	send_request(submit,server);
 	}
@@ -323,82 +323,90 @@
 				<button class="btn btn-block btn-warning" id="pinload" onclick="sw_load(this);" style="display:none;" type="button">Загрузить...</button>	
 					<ul class="list-group col-6">
 						<li id="devlist" class="list-group-item">
-								<div class="switch" value="true">
-									<input type="radio" name="switch-1" id="switch-radio-off-1"  class="switch-radio switch-radio-off">
-									<label for="switch-radio-off-1" class="switch-label switch-label-off ">
-										<span class="switch-slider" onclick="set_pinout(this,0,1);" type="submit"></span>
-									</label>
-									<input type="radio" checked name="switch-1" id="switch-radio-on-1" class="switch-radio switch-radio-on">
-									<label for="switch-radio-on-1" class="switch-label switch-label-on">
+							<div class="switch" value="true">
+								<input type="radio" name="switch-1" id="switch-radio-off-1"  class="switch-radio switch-radio-off">
+								<label for="switch-radio-off-1" class="switch-label switch-label-off ">
+									<span class="switch-slider" onclick="set_pinout(this,0,1);" type="submit"></span>
+								</label>
+								<input type="radio" checked name="switch-1" id="switch-radio-on-1" class="switch-radio switch-radio-on">
+								<label for="switch-radio-on-1" class="switch-label switch-label-on">
 										Вкл.
 										<span class="switch-slider" onclick="set_pinout(this,0,0);" type="submit"></span>
 									</label>
-								</div> 
-								<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
-									<div class="input-group">
-										<input class="form-control input" id="pin0" value="{{pin0_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
-									<span class="input-group-btn">
-										<button class="btn btn-default" type="button" onclick="set_pin_name(this,0);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
-									</span>
-									</div>									
-								</div>	
-								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
+							</div>
+							<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
+								<div class="input-group">
+									<input class="form-control input" id="pin0" value="{{pin0_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+								<span class="input-group-btn">
+									<button class="btn btn-default" type="button" onclick="set_pin_name(this,0);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+								</span>
+								</div>
+							</div>
+							<!--
+							<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									<label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode1st" name="optradio" onclick="set_fadeon(this,0,0);"><img src="/css/images/Stabile.png" alt="-">
 									</label>   
 									<label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode1fa" name="optradio" onclick="set_fadeon(this,0,1);"><img src="/css/images/Faid.png" alt="~">
 									</label>
-								</div>
-								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_1" style="padding: 1px 1px;">
-									
+							</div>
+							<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_1" style="padding: 1px 1px;">
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
-									</div>
-								<div class="col-md-2 col-sm-2 col-lg-2" id="pwm_1" style="padding: 1px 1px;">
-									<div class="input-group col-lg-10 col-xs-1">
+							</div>
+							<div class="col-md-2 col-sm-2 col-lg-2" id="pwm_1" style="padding: 1px 1px;">
+								<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="bt0-" onclick="set_settings(this,0,0,0);" type="button"  style="
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
-
 									  <span class="input-group-addon" id="bright0" style="
 											" type="text">{{bright0}}</span>
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="bt0+" onclick="set_settings(this,0,1,0);" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
-										</span>
-									
-									
-										</div>
-										
-									
-									
-									<div class="input-group col-lg-10 col-xs-1">
-									  <span class="input-group-btn">
+									  </span>
+								</div>
+								<div class="input-group col-lg-10 col-xs-1">
+									<span class="input-group-btn">
 										<button class="btn btn-secondary" id="am0-" onclick="set_settings(this,1,0,0)" type="button" style="
 													border: 1px solid #ccc;
 												">-</button>
-									  </span>
-									  
-
-									  <span class="input-group-addon" id="amount0" style="
-											" type="text">{{amount0}}</span>
-									  <span class="input-group-btn">
+									</span>
+									<span class="input-group-addon" id="amount0" style="
+										" type="text">{{amount0}}</span>
+									<span class="input-group-btn">
 										<button class="btn btn-secondary" id="am0+" onclick="set_settings(this,1,1,0)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
 									</span>
-									
-									
+								</div>
+							</div>
+							-->
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv1')" aria-pressed="false" autocomplete="off" style="">
+										Time On/Off
+								</div>
+								<div id="TimeDateDiv1" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_1" list="time-list" value="{{pin1_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_1" type="submit" onclick="time_button(this,1,'ON')" style="width: 36px;">ON</button>
+											</div>
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_1" list="time-list" value="{{pin1_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_1" type="submit" onclick="time_button(this,1,'OFF')" style="width: 36px;">OFF</button>
+											</div>
+										 </div>
 									</div>
-									</div>
-										
+								</div>
+							</div>
 						</li>
 						<li id="devlist" class="list-group-item">
 							<div class="switch">
@@ -413,14 +421,15 @@
 									<span class="switch-slider" onclick="set_pinout(this,1,0);" type="submit"></span>
 								</label>
 							</div>
-							        <div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
-								<div class="input-group">
-										<input class="form-control input" id="pin1" value="{{pin1_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
-									<span class="input-group-btn">
-										<button class="btn btn-default" type="button" onclick="set_pin_name(this,1);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
-									</span>
-								</div>	
-							</div>
+							    <div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
+									<div class="input-group">
+											<input class="form-control input" id="pin1" value="{{pin1_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button" onclick="set_pin_name(this,1);" style="padding: 4px 5px;"><img src="/css/images/save.png" alt="⬇"></button>
+										</span>
+									</div>
+								</div>
+							<!--
 								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode2st" name="optradio1" onclick="set_fadeon(this,1,0);"><img src="/css/images/Stabile.png" alt="-">
@@ -430,29 +439,24 @@
 									  </label>
 								</div>
 								<div class="col-md-1 col-sm-1 col-lg-1 col-xs-4" id="pwm_i_2" style="padding: 1px 1px;">
-									
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">delay</div>
 									<div class="alert alert-info" style="padding: 6px; margin-bottom: 0px;">ratio</div>
 									</div>
-							        <div class="col-md-2 col-sm-2 col-lg-2" id="pwm_2" style="padding: 1px 1px;">
+							    <div class="col-md-2 col-sm-2 col-lg-2" id="pwm_2" style="padding: 1px 1px;">
 									<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="bt1-" onclick="set_settings(this,0,0,1)" type="button" style="
 													border: 1px solid #ccc;
 												">-</button>
 									  </span>
-									  
-
 									  <span class="input-group-addon" id="bright1" style="
 											" type="text">{{bright1}}</span>
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="bt1+" onclick="set_settings(this,0,1,1)" type="button" style="
 												border: 1px solid #ccc;
 											">+</button>
-									  
 									</span>
 									</div>
-									
 									<div class="input-group col-lg-10 col-xs-1">
 									  <span class="input-group-btn">
 										<button class="btn btn-secondary" id="am1-" onclick="set_settings(this,1,0,1)" type="button" style="
@@ -470,22 +474,43 @@
 									  
 									</span>
 									</div>
+								</div>
+								-->
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv2')" aria-pressed="false" autocomplete="off" style="">
+										Time On/Off
+								</div>
+								<div id="TimeDateDiv2" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_2" list="time-list" value="{{pin2_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_2" type="submit" onclick="time_button(this,2,'ON')" style="width: 36px;">ON</button>
+											</div>
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_2" list="time-list" value="{{pin2_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_2" type="submit" onclick="time_button(this,2,'OFF')" style="width: 36px;">OFF</button>
+											</div>
+										 </div>
 									</div>
-									
+								</div>
+							</div>
 						</li>
 						<li id="devlist" class="list-group-item">
-							<div class="switch">
-								<input type="radio" name="switch-3" id="switch-radio-off-3" class="switch-radio switch-radio-off">
-								<label for="switch-radio-off-3" class="switch-label switch-label-off">
-									Выкл.
-									<span class="switch-slider" onclick="set_pinout(this,2,1);" type="submit"></span>
-								</label>
-								<input type="radio" checked name="switch-3" id="switch-radio-on-3" class="switch-radio switch-radio-on">
-								<label for="switch-radio-on-3" class="switch-label switch-label-on">
-									Вкл.
-									<span class="switch-slider" onclick="set_pinout(this,2,0);" type="submit"></span>
-								</label>
-							</div>
+								<div class="switch">
+									<input type="radio" name="switch-3" id="switch-radio-off-3" class="switch-radio switch-radio-off">
+									<label for="switch-radio-off-3" class="switch-label switch-label-off">
+										Выкл.
+										<span class="switch-slider" onclick="set_pinout(this,2,1);" type="submit"></span>
+									</label>
+									<input type="radio" checked name="switch-3" id="switch-radio-on-3" class="switch-radio switch-radio-on">
+									<label for="switch-radio-on-3" class="switch-label switch-label-on">
+										Вкл.
+										<span class="switch-slider" onclick="set_pinout(this,2,0);" type="submit"></span>
+									</label>
+								</div>
 								<div class="col-md-4 col-sm-4 col-lg-4 col-xs-8 row">
 										<div class="input-group">
 											<input class="form-control input" id="pin2" value="{{pin2_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">
@@ -494,6 +519,7 @@
 										</span>
 										</div>	
 								</div>
+							<!--
 								<div class="radio col-md-2 col-sm-2 col-lg-2 col-xs-5" style="margin-top: 2px;">
 									  <label class="radio-btn btn-default" style="padding: 0px 25px;">
 										<input type="radio" id="mode3st" name="optradio2" onclick="set_fadeon(this,2,0);"><img src="/css/images/Stabile.png" alt="-">
@@ -541,8 +567,30 @@
 									  
 									</span>
 									</div>
-									</div>	
-								</li>
+									</div>
+									-->
+							<div class="col-md-2 col-sm-2 col-lg-2 text-left">
+								<div type="button" class="btn btn-primary btn-xs" onclick="hideBox('TimeDateDiv3')" aria-pressed="false" autocomplete="off" style="">
+										Time On/Off
+								</div>
+								<div id="TimeDateDiv3" style="display: none;">
+									<div class="text-left" style="width: 115px;">
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeon_3" list="time-list" value="{{pin3_2}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_on_3" type="submit" onclick="time_button(this,3,'ON')" style="width: 36px;">ON</button>
+											</div>
+										 </div>
+										 <div class="input-group">
+											<input type="time" class="form-control col-md-8 col-xs-8 col-sm-8" id="timeoff_3" list="time-list" value="{{pin3_3}}" style="height: 22px; font-size: 14px;padding-left: 1px;padding-right: 1px;">
+											<div class="input-group-btn">
+												<button class="btn btn-default btn-xs" id="time_but_off_3" type="submit" onclick="time_button(this,3,'OFF')" style="width: 36px;">OFF</button>
+											</div>
+										 </div>
+									</div>
+								</div>
+							</div>
+						</li>
 						<li id="devlist" class="list-group-item">
 							<div class="switch">
 								<input type="radio" name="switch-4" id="switch-radio-off-4" class="switch-radio switch-radio-off">
@@ -685,7 +733,7 @@
 									<span class="switch-slider" onclick="set_pinout(this,6,0);" type="submit"></span>
 								</label>
 							</div>
-							
+
 							<div class="col-md-4 col-sm-4 col-lg-4 row">
 								<div class="input-group">
 										<input class="form-control input" id="pin6" value="{{pin6_0}}" pattern="[0-9a-zA-Zа-яА-Я. ]{1,20}" type="text">

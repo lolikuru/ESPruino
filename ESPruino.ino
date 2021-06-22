@@ -70,7 +70,7 @@ int led[8] = {4, 14, 16, 2, 5, 12, 13}; //вывод для управления
 int brightness[3] = {0, 0, 0};  // переменная для fade
 int bright[3] = {6, 6, 6}; // делей
 int fadeAmount[3] = {5, 5, 5};  // шаг фейда
-byte fadeon[3] = {1, 1, 1}; //вкл выкл режима fade
+byte fadeon[3] = {0, 0, 0}; //вкл выкл режима fade
 long t0 = 0; //millis()-time_synchr
 long tt = 0; //отсчет от текущей точки включения
 
