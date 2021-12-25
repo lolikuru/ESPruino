@@ -48,7 +48,7 @@ File fsUploadFile;
 Stepper myStepper(stepsPerRevolution, 4, 13, 14, 12);
 
 // Определяем переменные wifi
-String _ssid     = "Saya"; // Для хранения SSID
+String _ssid     = "Saya5G"; // Для хранения SSID
 String _password = "markiz18"; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
@@ -155,9 +155,9 @@ void SetToken(void){
 
 void StepRun(int steps) {
   dayily_count++;
-  steps = map(steps,1,360,1,2048);
+  steps = map(steps,1,360,1,5632);// соотношение 2.75, полный оброт 2048
   while(steps>10){
-    myStepper.step(5);
+    myStepper.step(-5);
     steps-=5;
     delay(1);// fix driver bug
   }
