@@ -43,8 +43,8 @@ bool is_authenticated() {
 File fsUploadFile;
 
 // Определяем переменные wifi
-String _ssid     = "Saya5G"; // Для хранения SSID
-String _password = "markiz18"; // Для хранения пароля сети
+String _ssid     = ""; // Для хранения SSID
+String _password = ""; // Для хранения пароля сети
 String _ssidAP = "WiFi";   // SSID AP точки доступа
 String _passwordAP = "00000000"; // пароль точки доступа
 String SSDP_Name = "Update"; // Имя SSDP
